@@ -11,13 +11,20 @@ try:
     with open("config/config.yaml", "r") as f:
         config = yaml.safe_load(f)
     RAW_DATA_PATH = config['paths']['raw_dir']
+    CLEANED_DATA_PATH = config['paths'].get('cleaned_dir', 'data/cleaned')
 except Exception:
     RAW_DATA_PATH = "data/raw"
+    CLEANED_DATA_PATH = "data/cleaned"
 
 def ensure_raw_dir():
     """Ensures that the raw data directory exists."""
     if not os.path.exists(RAW_DATA_PATH):
         os.makedirs(RAW_DATA_PATH)
+
+def ensure_cleaned_dir():
+    """Ensures that the cleaned data directory exists."""
+    if not os.path.exists(CLEANED_DATA_PATH):
+        os.makedirs(CLEANED_DATA_PATH)
 
 def render_styles():
     """Renders custom CSS for the application."""
@@ -143,6 +150,7 @@ def render_data_acquisition_column():
 def render_processing_export_column():
     """Renders the column for processing data and exporting results."""
     ensure_raw_dir()
+    ensure_cleaned_dir()
     st.subheader("2. Processing & Export")
     
     # File Selector
@@ -163,26 +171,37 @@ def render_processing_export_column():
     df_to_clean = pd.read_csv(os.path.join(RAW_DATA_PATH, selected_file))
     st.write(f"Selected Data: **{selected_file}** ({len(df_to_clean)} rows)")
     
+    save_to_cleaned = st.checkbox("Save cleaned file to data/cleaned", value=True)
+
     if st.button("Clean Selected Data"):
         with st.spinner(f"Cleaning {selected_file}..."):
             cleaned_df, stats = clean_student_data(df_to_clean)
             st.session_state['cleaned_df'] = cleaned_df
             st.session_state['stats'] = stats
-        
+
+            if save_to_cleaned:
+                base_name = os.path.splitext(selected_file)[0]
+                cleaned_path = os.path.join(CLEANED_DATA_PATH, f"{base_name}_cleaned.csv")
+                cleaned_df.to_csv(cleaned_path, index=False)
+                st.session_state['cleaned_path'] = cleaned_path
+
         st.success("Dataset cleaned and validated!")
-        
+
+        if save_to_cleaned and 'cleaned_path' in st.session_state:
+            st.info(f"Saved cleaned file to {st.session_state['cleaned_path']}")
+
         # Display stats
         s1, s2, s3 = st.columns(3)
         s1.metric("Final Rows", stats['final_rows'])
         s2.metric("Duplicates Removed", stats['duplicates_removed'])
         s3.metric("Retention Rate", f"{stats['retention_rate']}%")
-        
+
         st.dataframe(cleaned_df.head(5))
-    
+
     if 'cleaned_df' in st.session_state:
         st.divider()
         st.subheader("Download Results")
-        
+
         csv = st.session_state['cleaned_df'].to_csv(index=False).encode('utf-8')
         base_name = os.path.splitext(selected_file)[0]
         st.download_button(

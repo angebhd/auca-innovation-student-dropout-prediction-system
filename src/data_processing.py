@@ -73,36 +73,51 @@ def _impute_missing_values(df: pd.DataFrame, stats: Dict[str, Any]) -> pd.DataFr
 
 def _convert_types(df: pd.DataFrame) -> pd.DataFrame:
     """Convert columns to appropriate data types."""
-    int_cols = ['age', 'failed_courses', 'absences_count', 'late_submissions', 'library_visits', 'online_portal_logins', 'extracurricular_activities']
+    int_cols = [
+        'age', 'failed_courses', 'absences_count', 'late_submissions',
+        'library_visits', 'online_portal_logins', 'extracurricular_activities'
+    ]
+    float_cols = [
+        'distance_from_campus', 'admission_grade', 'semester_1_gpa',
+        'semester_2_gpa', 'semester_3_gpa', 'current_gpa', 'average_grade',
+        'attendance_rate', 'participation_score'
+    ]
     for col in int_cols:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
+    for col in float_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
     return df
+
 
 def _validate_domain(df: pd.DataFrame, stats: Dict[str, Any]) -> pd.DataFrame:
     """Validate domain-specific constraints (ranges, etc)."""
-    initial_valid_rows = len(df)
-    valid_masks = []
-    
+    invalid_counts = {}
+
     if 'age' in df.columns:
-        valid_masks.append((df['age'] >= 15) & (df['age'] <= 70))
-    
+        invalid = ~df['age'].between(15, 70, inclusive="both") & df['age'].notna()
+        if invalid.any():
+            invalid_counts['age'] = int(invalid.sum())
+            df.loc[invalid, 'age'] = np.nan
+
     gpa_cols = ['semester_1_gpa', 'semester_2_gpa', 'semester_3_gpa', 'current_gpa']
     for col in gpa_cols:
         if col in df.columns:
-            valid_masks.append((df[col] >= 0) & (df[col] <= 20.0))
-            
-    if 'attendance_rate' in df.columns:
-        valid_masks.append((df['attendance_rate'] >= 0) & (df['attendance_rate'] <= 100))
+            invalid = ~df[col].between(0, 20.0, inclusive="both") & df[col].notna()
+            if invalid.any():
+                invalid_counts[col] = int(invalid.sum())
+                df.loc[invalid, col] = np.nan
 
-    if valid_masks:
-        final_mask = valid_masks[0]
-        for m in valid_masks[1:]:
-            final_mask &= m
-        df = df[final_mask]
-        
-    stats['rows_removed'] = initial_valid_rows - len(df)
+    if 'attendance_rate' in df.columns:
+        invalid = ~df['attendance_rate'].between(0, 100, inclusive="both") & df['attendance_rate'].notna()
+        if invalid.any():
+            invalid_counts['attendance_rate'] = int(invalid.sum())
+            df.loc[invalid, 'attendance_rate'] = np.nan
+
+    stats['invalid_values_set_na'] = invalid_counts
     return df
+
 
 def _remove_outliers(df: pd.DataFrame, stats: Dict[str, Any]) -> pd.DataFrame:
     """Remove outliers using IQR method."""
@@ -112,10 +127,13 @@ def _remove_outliers(df: pd.DataFrame, stats: Dict[str, Any]) -> pd.DataFrame:
             Q1 = df[col].quantile(0.25)
             Q3 = df[col].quantile(0.75)
             IQR = Q3 - Q1
+            if pd.isna(IQR) or IQR == 0:
+                continue
             lower, upper = Q1 - 1.5 * IQR, Q3 + 1.5 * IQR
-            
+
             rows_before = len(df)
-            df = df[(df[col] >= lower) & (df[col] <= upper)]
+            keep_mask = df[col].between(lower, upper, inclusive="both") | df[col].isna()
+            df = df[keep_mask]
             stats['outliers_removed'] += (rows_before - len(df))
     return df
 
@@ -142,20 +160,21 @@ def clean_student_data(df: pd.DataFrame, verbose: bool = True) -> Tuple[pd.DataF
     stats = {
         'initial_rows': len(df),
         'duplicates_removed': 0, 'rows_removed': 0,
-        'missing_values_imputed': {}, 'outliers_removed': 0
+        'missing_values_imputed': {}, 'outliers_removed': 0,
+        'invalid_values_set_na': {}
     }
-    
+
     df = _standardize_columns(df)
-    
+    df = _standardize_values(df)
+
     duplicates = df.duplicated().sum()
     df = df.drop_duplicates()
     stats['duplicates_removed'] = int(duplicates)
-    
-    df = _impute_missing_values(df, stats)
+
     df = _convert_types(df)
     df = _validate_domain(df, stats)
+    df = _impute_missing_values(df, stats)
     df = _remove_outliers(df, stats)
-    df = _standardize_values(df)
 
     stats['final_rows'] = len(df)
     if stats['initial_rows'] > 0:
@@ -165,5 +184,5 @@ def clean_student_data(df: pd.DataFrame, verbose: bool = True) -> Tuple[pd.DataF
 
     if verbose:
         logger.info("Cleaning Complete. Stats: %s", stats)
-        
+
     return df, stats
