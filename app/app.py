@@ -2,6 +2,7 @@ import streamlit as st
 import sys
 import os
 
+
 # Add project root to path
 ROOT_DIR = os.path.join(os.path.dirname(__file__), '..')
 if ROOT_DIR not in sys.path:
@@ -21,6 +22,7 @@ from ui_components import (
     render_login_page,
     render_footer
 )
+
 
 # Page configuration
 st.set_page_config(

@@ -238,6 +238,55 @@ def render_analytics_page():
 def render_prediction_page():
     """Placeholder for the AI Prediction page."""
     st.header("Predictive Modeling Engine")
+    
+def render_prediction_page():
+    st.header("Predict Student Dropout Risk")
+    
+    import joblib
+    import pandas as pd
+
+   
+    model = joblib.load("models/risk_model.pkl")
+    feature_cols = joblib.load("models/feature_columns.pkl")
+
+    
+    st.info("Upload a CSV file of students or input a single student record.")
+    uploaded_file = st.file_uploader("Upload CSV", type="csv")
+    
+    if uploaded_file:
+        user_df = pd.read_csv(uploaded_file)
+    else:
+       
+        st.subheader("Manual Input")
+        age = st.number_input("Age", min_value=15, max_value=70, value=20)
+        gender = st.selectbox("Gender", ["M", "F", "Other"])
+        admission_grade = st.number_input("Admission Grade", min_value=0.0, max_value=20.0, value=12.0)
+        semester_1_gpa = st.number_input("Semester 1 GPA", min_value=0.0, max_value=20.0, value=12.0)
+        semester_2_gpa = st.number_input("Semester 2 GPA", min_value=0.0, max_value=20.0, value=12.0)
+        semester_3_gpa = st.number_input("Semester 3 GPA", min_value=0.0, max_value=20.0, value=12.0)
+        current_gpa = st.number_input("Current GPA", min_value=0.0, max_value=20.0, value=12.0)
+       
+        user_df = pd.DataFrame([{
+            "age": age,
+            "gender": gender,
+            "admission_grade": admission_grade,
+            "semester_1_gpa": semester_1_gpa,
+            "semester_2_gpa": semester_2_gpa,
+            "semester_3_gpa": semester_3_gpa,
+            "current_gpa": current_gpa
+        }])
+
+   
+    user_df = pd.get_dummies(user_df)
+    user_df = user_df.reindex(columns=feature_cols, fill_value=0)
+
+   
+    if st.button("Predict Risk"):
+        prediction = model.predict(user_df)
+        prediction_proba = model.predict_proba(user_df)
+        st.success(f"Predicted Dropout Risk: {prediction[0]}")
+        st.info(f"Prediction Probabilities: {dict(zip(model.classes_, prediction_proba[0]))}")
+
 
 def render_login_page():
     """Renders a professional mocked login landing page."""
