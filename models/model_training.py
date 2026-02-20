@@ -7,6 +7,8 @@ import os
 
 
 df = pd.read_csv("data/cleaned/students_cleaned.csv")
+df = df.dropna(subset=["dropout_risk"])
+
 
 
 X = df.drop(columns=["student_id", "actual_dropout", "dropout_risk"])
@@ -19,7 +21,8 @@ X = pd.get_dummies(X, drop_first=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 
-model = RandomForestClassifier(random_state=42)
+model = RandomForestClassifier(random_state=42,class_weight="balanced",)
+                            
 model.fit(X_train, y_train)
 
 

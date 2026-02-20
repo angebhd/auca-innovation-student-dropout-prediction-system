@@ -236,57 +236,116 @@ def render_analytics_page():
     st.image("https://via.placeholder.com/800x400.png?text=Big+Data+Analytics+Dashboard", width='stretch')
 
 def render_prediction_page():
-    """Placeholder for the AI Prediction page."""
-    st.header("Predictive Modeling Engine")
-    
-def render_prediction_page():
-    st.header("Predict Student Dropout Risk")
     
     import joblib
     import pandas as pd
+    import numpy as np
+
+    st.markdown("## AI Dropout Risk Prediction ")
+    st.markdown("Upload cleaned student data or evaluate a single student profile.")
 
    
-    model = joblib.load("models/risk_model.pkl")
-    feature_cols = joblib.load("models/feature_columns.pkl")
+    try:
+        model = joblib.load("models/risk_model.pkl")
+        feature_cols = joblib.load("models/feature_columns.pkl")
+    except Exception:
+        st.error(" Model not found. Please train the model first.")
+        return
 
-    
-    st.info("Upload a CSV file of students or input a single student record.")
-    uploaded_file = st.file_uploader("Upload CSV", type="csv")
-    
-    if uploaded_file:
-        user_df = pd.read_csv(uploaded_file)
+    option = st.radio("Choose Prediction Mode:", ["Upload CSV", "Single Student Input"])
+
+   
+    if option == "Upload CSV":
+
+        uploaded_file = st.file_uploader("Upload Cleaned CSV File", type="csv")
+
+        if uploaded_file:
+            df = pd.read_csv(uploaded_file)
+
+            st.write("Preview:", df.head())
+
+          
+            drop_cols = [col for col in ["student_id", "actual_dropout", "dropout_risk"] if col in df.columns]
+            df = df.drop(columns=drop_cols, errors="ignore")
+
+            df_encoded = pd.get_dummies(df)
+            df_encoded = df_encoded.reindex(columns=feature_cols, fill_value=0)
+
+            if st.button("Run Prediction"):
+                predictions = model.predict(df_encoded)
+                probabilities = model.predict_proba(df_encoded)
+
+                df["Predicted_Risk"] = predictions
+                df["Confidence_%"] = np.round(np.max(probabilities, axis=1) * 100, 2)
+
+                st.success("Prediction completed successfully.")
+                st.dataframe(df.head())
+
+                csv = df.to_csv(index=False).encode("utf-8")
+                st.download_button(
+                    label="Download Predictions",
+                    data=csv,
+                    file_name="predicted_dropout_risk.csv",
+                    mime="text/csv",
+                )
+
     else:
-       
-        st.subheader("Manual Input")
-        age = st.number_input("Age", min_value=15, max_value=70, value=20)
-        gender = st.selectbox("Gender", ["M", "F", "Other"])
-        admission_grade = st.number_input("Admission Grade", min_value=0.0, max_value=20.0, value=12.0)
-        semester_1_gpa = st.number_input("Semester 1 GPA", min_value=0.0, max_value=20.0, value=12.0)
-        semester_2_gpa = st.number_input("Semester 2 GPA", min_value=0.0, max_value=20.0, value=12.0)
-        semester_3_gpa = st.number_input("Semester 3 GPA", min_value=0.0, max_value=20.0, value=12.0)
-        current_gpa = st.number_input("Current GPA", min_value=0.0, max_value=20.0, value=12.0)
-       
-        user_df = pd.DataFrame([{
-            "age": age,
-            "gender": gender,
-            "admission_grade": admission_grade,
-            "semester_1_gpa": semester_1_gpa,
-            "semester_2_gpa": semester_2_gpa,
-            "semester_3_gpa": semester_3_gpa,
-            "current_gpa": current_gpa
-        }])
 
-   
-    user_df = pd.get_dummies(user_df)
-    user_df = user_df.reindex(columns=feature_cols, fill_value=0)
+        st.subheader("Enter Student Profile")
 
-   
-    if st.button("Predict Risk"):
-        prediction = model.predict(user_df)
-        prediction_proba = model.predict_proba(user_df)
-        st.success(f"Predicted Dropout Risk: {prediction[0]}")
-        st.info(f"Prediction Probabilities: {dict(zip(model.classes_, prediction_proba[0]))}")
+        col1, col2 = st.columns(2)
 
+        with col1:
+            age = st.number_input("Age", 16, 60, 20)
+            admission_grade = st.number_input("Admission Grade", 0.0, 20.0, 12.0)
+            semester_1_gpa = st.number_input("Semester 1 GPA", 0.0, 20.0, 12.0)
+            semester_2_gpa = st.number_input("Semester 2 GPA", 0.0, 20.0, 12.0)
+            semester_3_gpa = st.number_input("Semester 3 GPA", 0.0, 20.0, 12.0)
+
+        with col2:
+            current_gpa = st.number_input("Current GPA", 0.0, 20.0, 12.0)
+            attendance_rate = st.slider("Attendance Rate (%)", 0, 100, 75)
+            failed_courses = st.number_input("Failed Courses", 0, 20, 0)
+            absences_count = st.number_input("Absences Count", 0, 100, 5)
+            late_submissions = st.number_input("Late Submissions", 0, 50, 2)
+
+        if st.button("Predict Student Risk"):
+
+            input_dict = {
+                "age": age,
+                "admission_grade": admission_grade,
+                "semester_1_gpa": semester_1_gpa,
+                "semester_2_gpa": semester_2_gpa,
+                "semester_3_gpa": semester_3_gpa,
+                "current_gpa": current_gpa,
+                "attendance_rate": attendance_rate,
+                "failed_courses": failed_courses,
+                "absences_count": absences_count,
+                "late_submissions": late_submissions,
+            }
+
+            input_df = pd.DataFrame([input_dict])
+
+            input_df = pd.get_dummies(input_df)
+            input_df = input_df.reindex(columns=feature_cols, fill_value=0)
+
+            prediction = model.predict(input_df)[0]
+            probabilities = model.predict_proba(input_df)[0]
+            confidence = round(max(probabilities) * 100, 2)
+
+            if prediction == "High":
+                st.error(f" High Dropout Risk ({confidence}% confidence)")
+            elif prediction == "Medium":
+                st.warning(f" Medium Dropout Risk ({confidence}% confidence)")
+            else:
+                st.success(f" Low Dropout Risk ({confidence}% confidence)")
+                st.write("### Prediction Probabilities")
+
+
+
+
+
+    
 
 def render_login_page():
     """Renders a professional mocked login landing page."""
