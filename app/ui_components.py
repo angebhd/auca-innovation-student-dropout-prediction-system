@@ -1,3 +1,5 @@
+from pyexpat import model
+
 import streamlit as st
 import pandas as pd
 import os
@@ -236,15 +238,15 @@ def render_analytics_page():
     st.image("https://via.placeholder.com/800x400.png?text=Big+Data+Analytics+Dashboard", width='stretch')
 
 def render_prediction_page():
-    
+
     import joblib
     import pandas as pd
     import numpy as np
 
-    st.markdown("## AI Dropout Risk Prediction ")
-    st.markdown("Upload cleaned student data or evaluate a single student profile.")
+    st.markdown("##  AI Dropout Risk Prediction")
+    st.markdown("Evaluate student dropout risk using the trained machine learning model.")
 
-   
+    
     try:
         model = joblib.load("models/risk_model.pkl")
         feature_cols = joblib.load("models/feature_columns.pkl")
@@ -254,31 +256,29 @@ def render_prediction_page():
 
     option = st.radio("Choose Prediction Mode:", ["Upload CSV", "Single Student Input"])
 
-   
     if option == "Upload CSV":
 
         uploaded_file = st.file_uploader("Upload Cleaned CSV File", type="csv")
 
         if uploaded_file:
             df = pd.read_csv(uploaded_file)
+            st.write("Preview of Uploaded Data:", df.head())
 
-            st.write("Preview:", df.head())
-
-          
-            drop_cols = [col for col in ["student_id", "actual_dropout", "dropout_risk"] if col in df.columns]
-            df = df.drop(columns=drop_cols, errors="ignore")
+            drop_cols = ["student_id", "actual_dropout", "dropout_risk"]
+            df = df.drop(columns=[c for c in drop_cols if c in df.columns], errors="ignore")
 
             df_encoded = pd.get_dummies(df)
             df_encoded = df_encoded.reindex(columns=feature_cols, fill_value=0)
 
             if st.button("Run Prediction"):
+
                 predictions = model.predict(df_encoded)
                 probabilities = model.predict_proba(df_encoded)
 
                 df["Predicted_Risk"] = predictions
                 df["Confidence_%"] = np.round(np.max(probabilities, axis=1) * 100, 2)
 
-                st.success("Prediction completed successfully.")
+                st.success(" Prediction completed successfully.")
                 st.dataframe(df.head())
 
                 csv = df.to_csv(index=False).encode("utf-8")
@@ -289,6 +289,7 @@ def render_prediction_page():
                     mime="text/csv",
                 )
 
+   
     else:
 
         st.subheader("Enter Student Profile")
@@ -325,7 +326,6 @@ def render_prediction_page():
             }
 
             input_df = pd.DataFrame([input_dict])
-
             input_df = pd.get_dummies(input_df)
             input_df = input_df.reindex(columns=feature_cols, fill_value=0)
 
@@ -333,23 +333,51 @@ def render_prediction_page():
             probabilities = model.predict_proba(input_df)[0]
             confidence = round(max(probabilities) * 100, 2)
 
+          
             if prediction == "High":
                 st.error(f" High Dropout Risk ({confidence}% confidence)")
             elif prediction == "Medium":
                 st.warning(f" Medium Dropout Risk ({confidence}% confidence)")
             else:
                 st.success(f" Low Dropout Risk ({confidence}% confidence)")
-                st.write("### Prediction Probabilities")
+
+           
+            if prediction == "High":
+                st.info("Immediate academic intervention recommended.")
+            elif prediction == "Medium":
+                st.info("Monitor academic performance closely.")
+            else:
+                st.info("Student currently stable. Continue standard monitoring.")
+
+           
+            st.markdown("###  Prediction Probability Breakdown")
+
+            prob_df = pd.DataFrame({
+                "Risk Level": model.classes_,
+                "Probability (%)": np.round(probabilities * 100, 2)
+            })
+
+            st.bar_chart(prob_df.set_index("Risk Level"))
+
+            
+            st.markdown("###  Top Influential Factors")
+
+            importances = model.feature_importances_
+
+            feature_importance_df = pd.DataFrame({
+                "Feature": feature_cols,
+                "Importance": importances
+            }).sort_values(by="Importance", ascending=False).head(8)
+
+            st.dataframe(feature_importance_df)
 
 
 
 
-
-    
 
 def render_login_page():
     """Renders a professional mocked login landing page."""
-    # Custom styling for login
+  
     st.markdown("""
         <style>
         .login-container {
