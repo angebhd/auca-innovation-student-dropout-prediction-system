@@ -181,12 +181,14 @@ def render_styles():
 
         </style>
     """, unsafe_allow_html=True)
-    st.sidebar.markdown('<div class="sidebar-title">📊 AUCA System</div>', unsafe_allow_html=True)
+    st.sidebar.markdown('<div class="sidebar-title">Umoja Team</div>', unsafe_allow_html=True)
 
-def render_header():
+def render_header(page_name=None):
     """Renders the main headers of the application."""
-    st.markdown('<div class="header">Student Dropout Prediction System</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subheader">Professional Data Management & Analytics Suite</div>', unsafe_allow_html=True)
+    if page_name == "analytics":
+        st.markdown('<div class="header">Sudent Analytics Dashboard</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="header">Student Dropout Prediction System</div>', unsafe_allow_html=True)
 
 def render_home_page():
     """Renders the Home page with project overview."""
@@ -492,8 +494,7 @@ def plot_feature_importance(df):
 
 def render_analytics_page():
     """Renders the Analytics Dashboard with 4 key charts in a perfect 2x2 grid."""
-    render_header()
-    st.markdown("<h2 style='text-align: center; margin-bottom: 2rem;'>Analytics Dashboard</h2>", unsafe_allow_html=True)
+    render_header("analytics")
     
     # Load cleaned data
     df = load_cleaned_data()
@@ -502,7 +503,7 @@ def render_analytics_page():
         st.warning("⚠️ No cleaned data available. Please clean a dataset in the Data Suite first.")
         return
     
-    # Display summary metrics with tight spacing
+    # Display summary metrics
     st.markdown("<div style='margin-bottom: 1.5rem;'></div>", unsafe_allow_html=True)
     col1, col2, col3, col4 = st.columns(4, gap="medium")
     with col1:
@@ -517,32 +518,105 @@ def render_analytics_page():
         if 'attendance_rate' in df.columns:
             st.metric("Avg Attendance", f"{df['attendance_rate'].mean():.1f}%")
     
-    # Spacing before grid
     st.markdown("<div style='margin-top: 2rem; margin-bottom: 1rem;'></div>", unsafe_allow_html=True)
     
-    # First row of charts - perfectly aligned 2x2 grid
+    # Chart descriptions
+    chart_info = {
+        'risk': '''Dropout Risk Distribution
+        
+This pie chart shows how students are categorized into risk levels:
+
+• Low Risk (Green): Students likely to graduate successfully
+
+• Medium Risk (Yellow): Students needing monitoring and support
+
+• High Risk (Red): Students at significant risk of dropping out
+
+Percentages: Each slice shows what portion of total students fall into that category.
+
+Note: Students with missing risk data (NaN) have been automatically classified based on their GPA, attendance, and failed courses.''',
+        
+        'scatter': '''GPA vs Attendance Relationship
+        
+This scatter plot reveals the correlation between class attendance and academic performance:
+
+• X-axis: Attendance Rate (0-100%) - how regularly students attend classes
+
+• Y-axis: Current GPA (0-20 scale) - academic performance level
+
+• Green dots: Students who are continuing their studies
+
+• Red dots: Students who dropped out
+
+Key Insight: Students in the top-right (high attendance + high GPA) rarely drop out, while bottom-left clustering indicates high dropout risk.''',
+        
+        'gpa': '''Average GPA by Risk Category
+        
+This bar chart compares academic performance across risk levels:
+
+• Bars: Show the average GPA for each risk category
+
+• Black lines (error bars): Indicate the variation/spread of GPAs within each group
+
+• Numbers on bars: Exact average GPA values
+
+Interpretation: Clear separation between bars validates that GPA is a strong predictor of dropout risk. High-risk students typically have GPAs below 12/20.''',
+        
+        'importance': '''Feature Importance Analysis
+        
+This horizontal bar chart ranks which factors most strongly predict dropout:
+
+• Bar length: Indicates how strongly each factor correlates with actual dropout
+
+• Color gradient: Red/Orange = High importance, Yellow/Green = Lower importance
+
+• Numbers: Correlation scores (0-1 scale)
+
+Top Predictors: Current GPA, Failed Courses, and Attendance Rate are the strongest warning signs. Focus interventions on students struggling in these areas.'''
+    }
+    
+    # First row
     col1, col2 = st.columns(2, gap="medium")
     
     with col1:
-        st.markdown('<div style="min-height: 50px;"><h3 class="chart-title">Dropout Risk Distribution</h3></div>', unsafe_allow_html=True)
+        title_col, info_col = st.columns([5, 1])
+        with title_col:
+            st.markdown('<h3 class="chart-title">Dropout Risk Distribution</h3>', unsafe_allow_html=True)
+        with info_col:
+            with st.popover("ℹ️"):
+                st.info(chart_info['risk'])
         plot_dropout_risk_distribution(df)
     
     with col2:
-        st.markdown('<div style="min-height: 50px;"><h3 class="chart-title">GPA vs Attendance</h3></div>', unsafe_allow_html=True)
+        title_col, info_col = st.columns([5, 1])
+        with title_col:
+            st.markdown('<h3 class="chart-title">GPA vs Attendance</h3>', unsafe_allow_html=True)
+        with info_col:
+            with st.popover("ℹ️"):
+                st.info(chart_info['scatter'])
         plot_gpa_attendance_scatter(df)
     
-    # Spacing between rows
     st.markdown("<div style='margin-top: 1.5rem; margin-bottom: 1rem;'></div>", unsafe_allow_html=True)
     
-    # Second row of charts
+    # Second row
     col3, col4 = st.columns(2, gap="medium")
     
     with col3:
-        st.markdown('<div style="min-height: 50px;"><h3 class="chart-title">GPA by Risk Level</h3></div>', unsafe_allow_html=True)
+        title_col, info_col = st.columns([5, 1])
+        with title_col:
+            st.markdown('<h3 class="chart-title">GPA by Risk Level</h3>', unsafe_allow_html=True)
+        with info_col:
+            with st.popover("ℹ️"):
+                st.info(chart_info['gpa'])
         plot_gpa_by_risk_level(df)
     
     with col4:
-        st.markdown('<div style="min-height: 50px;"><h3 class="chart-title">Feature Importance</h3></div>', unsafe_allow_html=True)
+        title_col, info_col = st.columns([5, 1])
+        with title_col:
+            st.markdown('<h3 class="chart-title">Feature Importance</h3>', unsafe_allow_html=True)
+        with info_col:
+            with st.popover("ℹ️"):
+                st.info(chart_info['importance'])
         plot_feature_importance(df)
 
 def render_prediction_page():
