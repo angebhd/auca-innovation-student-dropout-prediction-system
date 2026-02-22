@@ -5,6 +5,10 @@ paths:
   cleaned_dir: "data/cleaned"
   models_dir: "models"
 
+settings:
+  app_name: "AUCA Student Success System"
+  version: 1.0
+
 project_info:
   title: "Student Dropout Prediction System"
   institution: "AUCA (Adventist University of Central Africa)"

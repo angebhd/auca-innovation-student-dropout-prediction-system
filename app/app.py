@@ -5,6 +5,9 @@ import os
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
+    
+from src.data_processing import clean_student_data
+from src.data_generation import generate_student_dummy_data
 
 import streamlit as st
 import pandas as pd
@@ -330,6 +333,29 @@ def load_cleaned_data():
         st.error(f"Error loading cleaned data: {e}")
     return None
 
+HISTORY_FILE = "data/prediction_history.csv"
+
+def save_to_history(student_data, prediction):
+    """Saves a single prediction record to a CSV file."""
+    os.makedirs("data", exist_ok=True)
+    # Add a timestamp to the data
+    student_data['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    student_data['prediction'] = prediction
+    
+    df = pd.DataFrame([student_data])
+    
+    # If file doesn't exist, write with header; else append without header
+    if not os.path.isfile(HISTORY_FILE):
+        df.to_csv(HISTORY_FILE, index=False)
+    else:
+        df.to_csv(HISTORY_FILE, mode='a', header=False, index=False)
+
+def load_history():
+    """Loads all past predictions."""
+    if os.path.exists(HISTORY_FILE):
+        return pd.read_csv(HISTORY_FILE)
+    return pd.DataFrame()
+
 def plot_dropout_risk_distribution(df):
     """Chart 1: Dropout Risk Distribution - Pie Chart"""
     if 'dropout_risk' not in df.columns:
@@ -366,6 +392,38 @@ def plot_dropout_risk_distribution(df):
     
     plt.tight_layout()
     st.pyplot(fig, use_container_width=True)
+
+def render_history_page():
+    render_header()
+    st.header("Prediction History")
+    
+    df_history = load_history()
+    
+    if df_history.empty:
+        st.warning("No history found. Run some predictions first!")
+    else:
+        # Professional table configuration
+        st.dataframe(
+            df_history.sort_values(by="timestamp", ascending=False),
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "timestamp": "Assessment Date",
+                "prediction": st.column_config.SelectboxColumn(
+                    "Risk Level",
+                    options=["Low", "Medium", "High"],
+                    # This adds a visual indicator if you use emojis in the strings
+                ),
+                "current_gpa": st.column_config.NumberColumn("GPA", format="%.2f"),
+                "confidence": st.column_config.ProgressColumn(
+                    "AI Confidence",
+                    help="Model certainty of the prediction",
+                    format="%.2f",
+                    min_value=0,
+                    max_value=1,
+                ),
+            }
+        )
 
 def plot_gpa_attendance_scatter(df):
     """Chart 2: GPA vs Attendance Rate by Dropout Status"""
@@ -709,6 +767,7 @@ def main():
             ],
             "Intelligence": [
                 st.Page(render_prediction_page, title="Risk Prediction", icon=":material/psychology:"),
+                st.Page(render_history_page, title="Prediction History", icon=":material/history:"),
             ]
         }
         pg = st.navigation(pages)
