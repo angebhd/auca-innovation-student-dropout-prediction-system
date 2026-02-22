@@ -1,39 +1,46 @@
 # Umoja Team: Student Dropout Prediction System
 
 ## Problem Statement
+
 Higher education institutions face challenges in identifying students who are at risk of dropping out or failing courses at an early stage. Academic performance data, attendance records, and learning behavior are often analyzed too late, resulting in delayed interventions and increased failure rates.
 
 ## Proposed ML-Based Solution
+
 This project implements a machine learning–based prediction system that analyzes historical student data such as grades, attendance, and course engagement to classify students into risk categories. The system generates early warning indicators to support timely academic interventions by lecturers and academic administrators.
 
 ---
 
 ## Team & Responsibilities
-| Member | Responsibility | Status |
-| :--- | :--- | :--- |
-| **Ange** | Dataset, Clean up & Filtering | Implemented |
-| **Arnaud** | Dashboard UI | Not Started |
-| **Raissa** | File Upload | Not Started |
-| **Ines** | Sign up / Log in / Logout | Not Started |
-| **Jessica** | Charts / Analytics | Not Started |
-| **Mugeni** | History | Not Started |
-| **Ritha** | AI Prediction | Not Started |
-| **Zakaria** | Code Review | Not Started |
+
+| Member      | Responsibility                | Status      |
+| :---------- | :---------------------------- | :---------- |
+| **Ange**    | Dataset, Clean up & Filtering | Implemented |
+| **Arnaud**  | Dashboard UI                  | Not Started |
+| **Raissa**  | File Upload                   | Not Started |
+| **Ines**    | Sign up / Log in / Logout     | Not Started |
+| **Jessica** | Charts / Analytics            | Not Started |
+| **Mugeni**  | History                       | Not Started |
+| **Ritha**   | AI Prediction                 | Not Started |
+| **Zakaria** | Code Review                   | Not Started |
 
 ---
 
 ## Technical Architecture & Logic
+
 The system is built with a strong focus on **Separation of Concerns** to allow the team to work concurrently.
 
 ### 1. Logic & Core Engine Layer (`src/`)
+
 - `data_processing.py`: Contains the core logic for cleaning (imputation, duplicate removal, outlier detection). Isolated from the UI so it can be used by the AI engine later.
 - `data_generation.py`: Generates "dirty" synthetic data to test the robustness of the cleaning pipeline.
 
 ### 2. UI Layer (`app/`)
-- `app.py`: The entry point. It handles orchestration but *no* rendering logic.
+
+- `app.py`: The entry point. It handles orchestration but _no_ rendering logic.
 - `ui_components.py`: Contains all Streamlit rendering functions (styles, headers, columns). This allows UI designers (Arnaud) to work without breaking the core logic.
 
 ### 4. File Architecture
+
 ```text
 .
 ├── app/                # Streamlit UI & Orchestration
@@ -55,6 +62,7 @@ The system is built with a strong focus on **Separation of Concerns** to allow t
 ---
 
 ## Feature Status Matrix
+
 - [x] Data Acquisition: Persistent storage in data/raw/.
 - [x] Data Cleaning: Modularized and SonarLint compliant.
 - [ ] Authentication: To be implemented.
@@ -66,10 +74,12 @@ The system is built with a strong focus on **Separation of Concerns** to allow t
 ## Getting Started
 
 ### Prerequisites
+
 - Python 3.14+
 - Virtual environment
 
 ### Installation & Run
+
 ```bash
 # 1. Setup
 git clone https://github.com/angebhd/auca-innovation-student-dropout-prediction-system.git
@@ -89,4 +99,5 @@ streamlit run app/app.py
 ```
 
 ---
+
 **Developed by Umoja Team | © 2026**
