@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 import sys
 
 def setup_logging(name: str) -> logging.Logger:

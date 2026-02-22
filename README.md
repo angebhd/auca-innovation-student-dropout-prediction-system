@@ -1,179 +1,103 @@
-# 🎓 Student Dropout Prediction System
+# Umoja Team: Student Dropout Prediction System
 
-An advanced data analytics and machine learning system for predicting student dropout risk using comprehensive academic, engagement, and socioeconomic metrics.
+## Problem Statement
 
-## 📋 Project Overview
+Higher education institutions face challenges in identifying students who are at risk of dropping out or failing courses at an early stage. Academic performance data, attendance records, and learning behavior are often analyzed too late, resulting in delayed interventions and increased failure rates.
 
-This system analyzes student data to:
+## Proposed ML-Based Solution
 
-- Identify at-risk students before dropout occurs
-- Understand key factors contributing to student retention
-- Provide actionable insights through interactive analytics
-- Support institutional intervention strategies
-
-## 🎯 Key Components
-
-- **Interactive Streamlit Dashboard**: Real-time visualizations and analytics
-- **Data Processing Pipeline**: Automated cleaning, preprocessing, and validation
-- **Exploratory Data Analysis**: Jupyter notebook with 40+ analysis cells
-- **24 Key Metrics**: Academic, engagement, and socioeconomic factors
-- **Model Training Suite**: Risk classification and dropout prediction
-
-## 📁 Project Structure
-
-```
-auca-innovation-student-dropout-prediction-system/
-├── app/
-│   ├── app.py                          # Streamlit application with analytics dashboard
-│   └── __pycache__/
-├── src/
-│   ├── data_loader.py                 # Data loading utilities
-│   ├── preprocessing.py                # Data preprocessing
-│   ├── training.py                    # Model training
-│   ├── data_processing.py              # Data processing workflows
-│   ├── data_generation.py              # Synthetic data generation
-│   ├── logger.py                       # Logging configuration
-│   └── __pycache__/
-├── data/
-│   ├── raw/
-│   │   └── dummy_data.csv              # Input dataset
-│   └── cleaned/                        # Processed data
-├── exploratory_data_analysis.ipynb    # EDA with 40+ cells of analysis
-├── requirements.txt                   # Python dependencies
-├── README.md                          # This file
-└── ANALYTICS_SETUP.md                 # Detailed analytics guide
-```
-
-## 📊 Dataset Features (24 Metrics)
-
-### Demographic Information
-
-- `student_id`: Unique identifier
-- `age`: Student age
-- `gender`: Male/Female/Other
-
-### Academic Performance (Core Predictors)
-
-- `admission_grade`: Entrance exam score
-- `semester_1_gpa`, `semester_2_gpa`, `semester_3_gpa`: GPA by semester
-- `current_gpa`: Overall GPA (0.0-4.0)
-- `average_grade`: Mean of all course grades
-- `failed_courses`: Number of failed courses
-- `previous_education`: High school type/quality
-
-### Attendance Data
-
-- `attendance_rate`: Class attendance percentage (0-100%)
-- `absences_count`: Total absences
-- `late_submissions`: Number of late assignments
-
-### Engagement Metrics
-
-- `library_visits`: Per semester visits
-- `online_portal_logins`: LMS platform usage
-- `participation_score`: Class participation (0-10)
-- `extracurricular_activities`: Number of activities
-
-### Socioeconomic Factors
-
-- `scholarship_status`: Yes/No or Full/Partial/None
-- `financial_aid`: Yes/No
-- `distance_from_campus`: Kilometers from campus
-- `accommodation_type`: Campus/Home/Rented
-
-### Target Variables
-
-- `dropout_risk`: High/Medium/Low risk category
-- `actual_dropout`: Binary (1=Dropped, 0=Continuing)
-
-## 🚀 Quick Start
-
-### 1. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Prepare Data
-
-Place your CSV dataset at: `data/raw/dummy_data.csv`
-
-### 3. Run the Application
-
-```bash
-streamlit run app/app.py
-```
-
-The app opens automatically at **http://localhost:8501**
-
-## 🛠️ Technology Stack
-
-- **Frontend/Backend**: Streamlit (Python)
-- **Data Processing**: Pandas, NumPy
-- **Visualization**: Matplotlib, Seaborn
-- **Analysis**: Jupyter Notebook (EDA)
-- **Logging**: Python logging module
-
-## 📈 Key Insights
-
-The analysis reveals:
-
-1. **GPA is a Strong Predictor**: Lower GPAs correlate with higher dropout rates
-2. **Attendance Matters**: Strong correlation between attendance and retention
-3. **Engagement is Critical**: Online activities and library visits indicate engagement
-4. **Socioeconomic Factors Impact Risk**: Scholarship and accommodation types influence outcomes
-5. **Early Warning Signs**: Semester 1-2 GPA trends predict future dropout risk
-
-## � Important Notes
-
-**Data Requirements:**
-
-- Minimum 100+ student records recommended
-- Ensure `student_id` is unique in your dataset
-- All numeric columns should be properly formatted
-
-**First Time Setup:**
-If you encounter any issues with running the app, ensure:
-
-1. Python 3.8 or higher is installed
-2. All dependencies from `requirements.txt` are installed
-3. Your data file exists at `data/raw/dummy_data.csv`
-
-## 📖 Documentation
-
-- **[ANALYTICS_SETUP.md](ANALYTICS_SETUP.md)**: Complete guide to the analytics dashboard, configuration, and troubleshooting
-- **[exploratory_data_analysis.ipynb](exploratory_data_analysis.ipynb)**: Full exploratory data analysis with 40+ visualization cells
-
-## 🤝 Contributing
-
-Contributions are welcome! Areas for enhancement:
-
-- [ ] Add more prediction models (Logistic Regression, Random Forest, etc.)
-- [ ] Export reports to PDF
-- [ ] Student-level drill-down reports
-- [ ] Time-series analysis for trends
-- [ ] Mobile app version
-- [ ] Real-time data integration
-
-## 📄 License
-
-This project is part of the AUCA Innovation program.
-
-## 👥 Team
-
-Developed at AUCA Innovation for the Student Dropout Prediction System.
-
-## 📞 Support
-
-For issues or questions:
-
-1. Check the troubleshooting section
-2. Review [ANALYTICS_SETUP.md](ANALYTICS_SETUP.md)
-3. Check browser console for errors (F12)
-4. Verify data file and format
+This project implements a machine learning–based prediction system that analyzes historical student data such as grades, attendance, and course engagement to classify students into risk categories. The system generates early warning indicators to support timely academic interventions by lecturers and academic administrators.
 
 ---
 
-**Last Updated**: February 2026  
-**Version**: 1.0.0  
-**Status**: Production Ready
+## Team & Responsibilities
+
+| Member      | Responsibility                | Status      |
+| :---------- | :---------------------------- | :---------- |
+| **Ange**    | Dataset, Clean up & Filtering | Implemented |
+| **Arnaud**  | Dashboard UI                  | Not Started |
+| **Raissa**  | File Upload                   | Not Started |
+| **Ines**    | Sign up / Log in / Logout     | Not Started |
+| **Jessica** | Charts / Analytics            | Not Started |
+| **Mugeni**  | History                       | Not Started |
+| **Ritha**   | AI Prediction                 | Not Started |
+| **Zakaria** | Code Review                   | Not Started |
+
+---
+
+## Technical Architecture & Logic
+
+The system is built with a strong focus on **Separation of Concerns** to allow the team to work concurrently.
+
+### 1. Logic & Core Engine Layer (`src/`)
+
+- `data_processing.py`: Contains the core logic for cleaning (imputation, duplicate removal, outlier detection). Isolated from the UI so it can be used by the AI engine later.
+- `data_generation.py`: Generates "dirty" synthetic data to test the robustness of the cleaning pipeline.
+
+### 2. UI Layer (`app/`)
+
+- `app.py`: The entry point. It handles orchestration but _no_ rendering logic.
+- `ui_components.py`: Contains all Streamlit rendering functions (styles, headers, columns). This allows UI designers (Arnaud) to work without breaking the core logic.
+
+### 4. File Architecture
+
+```text
+.
+├── app/                # Streamlit UI & Orchestration
+│   ├── app.py          # Entry point
+│   └── ui_components.py# UI Components & Styling
+├── config/             # Environment Configuration
+│   └── config.yaml     # Centralized Parameters
+├── data/               # Persistent Storage
+│   ├── cleaned/        # Processed Datasets
+│   └── raw/            # Original Datasets
+├── models/             # ML Model Serialized Files
+├── src/                # Core Logic & Engine
+│   ├── data_generation.py
+│   └── data_processing.py
+├── tests/              # Unit & Integration Tests
+└── requirements.txt    # Project Dependencies
+```
+
+---
+
+## Feature Status Matrix
+
+- [x] Data Acquisition: Persistent storage in data/raw/.
+- [x] Data Cleaning: Modularized and SonarLint compliant.
+- [ ] Authentication: To be implemented.
+- [ ] Interactive Charts: To be implemented.
+- [ ] AI Predictions: To be implemented.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.14+
+- Virtual environment
+
+### Installation & Run
+
+```bash
+# 1. Setup
+git clone https://github.com/angebhd/auca-innovation-student-dropout-prediction-system.git
+cd auca-innovation-student-dropout-prediction-system
+python -m venv .venv
+
+# 2. Activate (Linux/macOS)
+source .venv/bin/activate
+# Or (Windows)
+.venv\Scripts\activate
+
+# 2. Dependencies
+pip install -r requirements.txt
+
+# 3. Launch
+streamlit run app/app.py
+```
+
+---
+
+**Developed by Umoja Team | © 2026**

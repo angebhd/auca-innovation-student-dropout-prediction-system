@@ -1,4 +1,4 @@
-﻿# Professional Student Dropout Prediction System Configuration
+# Professional Student Dropout Prediction System Configuration
 
 paths:
   raw_dir: "data/raw"
@@ -9,7 +9,7 @@ project_info:
   title: "Student Dropout Prediction System"
   institution: "AUCA (Adventist University of Central Africa)"
   problem_statement: "Higher education institutions face challenges in identifying students who are at risk of dropping out or failing courses at an early stage. Academic performance data, attendance records, and learning behavior are often analyzed too late."
-  proposed_solution: "Develop a machine learningΓÇôbased prediction system that analyzes historical student data such as grades, attendance, and course engagement to classify students into risk categories."
+  proposed_solution: "Develop a machine learning–based prediction system that analyzes historical student data such as grades, attendance, and course engagement to classify students into risk categories."
 
 cleaning:
   age_range: [15, 70]
