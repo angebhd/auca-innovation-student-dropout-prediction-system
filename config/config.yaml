@@ -1,0 +1,52 @@
+# Professional Student Dropout Prediction System Configuration
+
+paths:
+  raw_dir: "data/raw"
+  cleaned_dir: "data/cleaned"
+  models_dir: "models"
+
+project_info:
+  title: "Student Dropout Prediction System"
+  institution: "AUCA (Adventist University of Central Africa)"
+  problem_statement: "Higher education institutions face challenges in identifying students who are at risk of dropping out or failing courses at an early stage. Academic performance data, attendance records, and learning behavior are often analyzed too late."
+  proposed_solution: "Develop a machine learning–based prediction system that analyzes historical student data such as grades, attendance, and course engagement to classify students into risk categories."
+
+cleaning:
+  age_range: [15, 70]
+  gpa_range: [0.0, 20.0]
+  percentage_range: [0.0, 100.0]
+  participation_range: [0.0, 10.0]
+  outlier_columns:
+    - "age"
+    - "attendance_rate"
+    - "participation_score"
+    - "current_gpa"
+    - "average_grade"
+
+features:
+  numeric:
+    median_impute:
+      - "age"
+      - "distance_from_campus"
+    mean_impute:
+      - "admission_grade"
+      - "semester_1_gpa"
+      - "semester_2_gpa"
+      - "semester_3_gpa"
+      - "current_gpa"
+      - "average_grade"
+      - "attendance_rate"
+      - "participation_score"
+    zero_impute:
+      - "failed_courses"
+      - "absences_count"
+      - "late_submissions"
+      - "library_visits"
+      - "online_portal_logins"
+      - "extracurricular_activities"
+  categorical:
+    - "gender"
+    - "previous_education"
+    - "scholarship_status"
+    - "financial_aid"
+    - "accommodation_type"
