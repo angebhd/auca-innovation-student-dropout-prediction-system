@@ -184,6 +184,11 @@ def render_processing_export_column():
                 cleaned_path = os.path.join(CLEANED_DATA_PATH, f"{base_name}_cleaned.csv")
                 cleaned_df.to_csv(cleaned_path, index=False)
                 st.session_state['cleaned_path'] = cleaned_path
+            
+            # Log to history
+            from src.history import log_data_clean
+            user = st.session_state.get('user', {}).get('username', 'anonymous')
+            log_data_clean(selected_file, stats, user=user)
 
         st.success("Dataset cleaned and validated!")
 
@@ -231,16 +236,329 @@ def render_home_page():
     """)
 
 def render_analytics_page():
-    """Placeholder for the Analytics page."""
-    st.header("Exploratory Data Analysis")
-    st.image("https://via.placeholder.com/800x400.png?text=Big+Data+Analytics+Dashboard", width='stretch')
+    """Render the Analytics page with interactive charts."""
+    from src.analytics import analytics
+    from src.prediction import predictor
+    
+    st.markdown('<div class="header">Exploratory Data Analysis</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subheader">Interactive visualization of student performance metrics</div>', unsafe_allow_html=True)
+    
+    # Data source selection
+    ensure_cleaned_dir()
+    cleaned_files = [f for f in os.listdir(CLEANED_DATA_PATH) if f.endswith(".csv")]
+    
+    if not cleaned_files:
+        st.warning("No cleaned datasets found. Please process a dataset in Data Suite first.")
+        st.info("Navigate to **Data Suite** → Clean a dataset → Return here for analytics.")
+        return
+    
+    selected_file = st.selectbox("Select Dataset for Analysis", cleaned_files, key="analytics_file")
+    df = pd.read_csv(os.path.join(CLEANED_DATA_PATH, selected_file))
+    
+    # Check if predictions exist, if not run them
+    if 'risk_category' not in df.columns and predictor.is_trained:
+        with st.spinner("Running risk predictions..."):
+            df = predictor.predict(df)
+    
+    # Overview metrics
+    st.markdown("### 📊 Overview Metrics")
+    stats = analytics.get_overview_stats(df)
+    
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Students", stats['total_students'])
+    col2.metric("Average GPA", stats.get('avg_gpa', 'N/A'))
+    col3.metric("Avg Attendance", f"{stats.get('avg_attendance', 0):.1f}%")
+    col4.metric("Students with Failures", stats.get('students_with_failures', 0))
+    
+    st.divider()
+    
+    # Charts section
+    st.markdown("### 📈 Performance Analytics")
+    
+    chart_col1, chart_col2 = st.columns(2)
+    
+    with chart_col1:
+        gpa_chart = analytics.create_gpa_distribution_chart(df)
+        if gpa_chart:
+            st.plotly_chart(gpa_chart, use_container_width=True)
+    
+    with chart_col2:
+        attendance_chart = analytics.create_attendance_distribution_chart(df)
+        if attendance_chart:
+            st.plotly_chart(attendance_chart, use_container_width=True)
+    
+    # Second row
+    chart_col3, chart_col4 = st.columns(2)
+    
+    with chart_col3:
+        semester_chart = analytics.create_semester_gpa_trend(df)
+        if semester_chart:
+            st.plotly_chart(semester_chart, use_container_width=True)
+    
+    with chart_col4:
+        failed_chart = analytics.create_failed_courses_chart(df)
+        if failed_chart:
+            st.plotly_chart(failed_chart, use_container_width=True)
+    
+    st.divider()
+    
+    # Risk analysis section (if predictions exist)
+    if 'risk_category' in df.columns:
+        st.markdown("### 🎯 Risk Analysis")
+        
+        risk_col1, risk_col2 = st.columns(2)
+        
+        with risk_col1:
+            risk_pie = analytics.create_risk_distribution_chart(df)
+            if risk_pie:
+                st.plotly_chart(risk_pie, use_container_width=True)
+        
+        with risk_col2:
+            scatter = analytics.create_gpa_vs_attendance_scatter(df)
+            if scatter:
+                st.plotly_chart(scatter, use_container_width=True)
+    
+    # Engagement section
+    st.markdown("### 👥 Engagement Analysis")
+    
+    eng_col1, eng_col2 = st.columns(2)
+    
+    with eng_col1:
+        radar = analytics.create_engagement_radar(df)
+        if radar:
+            st.plotly_chart(radar, use_container_width=True)
+    
+    with eng_col2:
+        corr = analytics.create_correlation_heatmap(df)
+        if corr:
+            st.plotly_chart(corr, use_container_width=True)
+    
+    # Data preview
+    st.divider()
+    st.markdown("### 📋 Data Preview")
+    with st.expander("View Raw Data"):
+        st.dataframe(df.head(50), use_container_width=True)
 
 def render_prediction_page():
-    """Placeholder for the AI Prediction page."""
-    st.header("Predictive Modeling Engine")
+    """Render the AI Prediction page with model training and predictions."""
+    from src.prediction import predictor
+    from src.analytics import analytics
+    
+    st.markdown('<div class="header">Risk Prediction Engine</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subheader">ML-powered dropout risk assessment and early warning system</div>', unsafe_allow_html=True)
+    
+    # Tabs for different functions
+    tab1, tab2, tab3 = st.tabs(["🎓 Train Model", "🔮 Batch Prediction", "👤 Individual Prediction"])
+    
+    # ==================== TAB 1: TRAIN MODEL ====================
+    with tab1:
+        st.markdown("### Train Prediction Model")
+        st.info("Train a Random Forest classifier on cleaned student data to predict dropout risk.")
+        
+        ensure_cleaned_dir()
+        cleaned_files = [f for f in os.listdir(CLEANED_DATA_PATH) if f.endswith(".csv")]
+        
+        if not cleaned_files:
+            st.warning("No cleaned datasets available. Please clean a dataset in Data Suite first.")
+        else:
+            training_file = st.selectbox("Select Training Dataset", cleaned_files, key="train_file")
+            
+            col1, col2 = st.columns([2, 1])
+            with col1:
+                if st.button("🚀 Train Model", type="primary", use_container_width=True):
+                    with st.spinner("Training model... This may take a moment."):
+                        df = pd.read_csv(os.path.join(CLEANED_DATA_PATH, training_file))
+                        metrics = predictor.train(df)
+                        st.session_state['training_metrics'] = metrics
+                        
+                        # Log to history
+                        from src.history import log_model_train
+                        user = st.session_state.get('user', {}).get('username', 'anonymous')
+                        log_model_train(metrics, user=user)
+                    st.success("Model trained successfully!")
+            
+            with col2:
+                if predictor.is_trained:
+                    st.success("✅ Model Ready")
+                else:
+                    st.warning("⚠️ No Model")
+            
+            # Show training metrics
+            if 'training_metrics' in st.session_state:
+                metrics = st.session_state['training_metrics']
+                st.markdown("#### Training Results")
+                
+                m1, m2, m3, m4 = st.columns(4)
+                m1.metric("Accuracy", f"{metrics['accuracy']*100:.1f}%")
+                m2.metric("Precision", f"{metrics['precision']*100:.1f}%")
+                m3.metric("Recall", f"{metrics['recall']*100:.1f}%")
+                m4.metric("F1 Score", f"{metrics['f1_score']*100:.1f}%")
+                
+                # Feature importance
+                importance_df = predictor.get_feature_importance()
+                if importance_df is not None:
+                    st.markdown("#### Feature Importance")
+                    fig = analytics.create_feature_importance_chart(importance_df)
+                    if fig:
+                        st.plotly_chart(fig, use_container_width=True)
+    
+    # ==================== TAB 2: BATCH PREDICTION ====================
+    with tab2:
+        st.markdown("### Batch Prediction")
+        st.info("Run predictions on an entire dataset to identify at-risk students.")
+        
+        if not predictor.is_trained:
+            st.warning("Please train a model first in the 'Train Model' tab.")
+        else:
+            cleaned_files = [f for f in os.listdir(CLEANED_DATA_PATH) if f.endswith(".csv")]
+            
+            if cleaned_files:
+                pred_file = st.selectbox("Select Dataset for Prediction", cleaned_files, key="pred_file")
+                
+                if st.button("🔮 Run Predictions", type="primary"):
+                    with st.spinner("Running predictions..."):
+                        df = pd.read_csv(os.path.join(CLEANED_DATA_PATH, pred_file))
+                        results = predictor.predict(df)
+                        st.session_state['prediction_results'] = results
+                        st.session_state['risk_summary'] = predictor.get_risk_summary(results)
+                        
+                        # Log to history
+                        from src.history import log_batch_prediction
+                        user = st.session_state.get('user', {}).get('username', 'anonymous')
+                        summary = st.session_state['risk_summary']
+                        log_batch_prediction(pred_file, summary.get('total_students', 0), summary.get('high_risk', 0), user=user)
+                    st.success("Predictions complete!")
+                
+                # Show results
+                if 'prediction_results' in st.session_state:
+                    results = st.session_state['prediction_results']
+                    summary = st.session_state.get('risk_summary', {})
+                    
+                    st.markdown("#### Risk Summary")
+                    s1, s2, s3, s4 = st.columns(4)
+                    s1.metric("Total Students", summary.get('total_students', 0))
+                    s2.metric("🔴 High Risk", summary.get('high_risk', 0), 
+                             f"{summary.get('high_risk_pct', 0):.1f}%")
+                    s3.metric("🟡 Medium Risk", summary.get('medium_risk', 0),
+                             f"{summary.get('medium_risk_pct', 0):.1f}%")
+                    s4.metric("🟢 Low Risk", summary.get('low_risk', 0),
+                             f"{summary.get('low_risk_pct', 0):.1f}%")
+                    
+                    # Risk distribution chart
+                    risk_chart = analytics.create_risk_distribution_chart(results)
+                    if risk_chart:
+                        st.plotly_chart(risk_chart, use_container_width=True)
+                    
+                    # Top at-risk students
+                    st.markdown("#### 🚨 Top At-Risk Students")
+                    top_risk = analytics.get_top_at_risk_students(results, n=10)
+                    if not top_risk.empty:
+                        st.dataframe(top_risk, use_container_width=True)
+                    
+                    # Recommendations
+                    st.markdown("#### 📋 Intervention Recommendations")
+                    recommendations = analytics.get_intervention_recommendations(summary)
+                    for rec in recommendations:
+                        st.markdown(f"- {rec}")
+                    
+                    # Download results
+                    st.divider()
+                    csv = results.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        "📥 Download Predictions CSV",
+                        csv,
+                        f"predictions_{pred_file}",
+                        "text/csv",
+                        use_container_width=True
+                    )
+    
+    # ==================== TAB 3: INDIVIDUAL PREDICTION ====================
+    with tab3:
+        st.markdown("### Individual Student Assessment")
+        st.info("Enter student data to get an instant risk prediction.")
+        
+        if not predictor.is_trained:
+            st.warning("Please train a model first in the 'Train Model' tab.")
+        else:
+            with st.form("individual_prediction"):
+                st.markdown("#### Student Information")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    age = st.number_input("Age", min_value=16, max_value=60, value=20)
+                    gender = st.selectbox("Gender", ["M", "F", "Other"])
+                    admission_grade = st.number_input("Admission Grade", min_value=0.0, max_value=100.0, value=75.0)
+                
+                with col2:
+                    current_gpa = st.number_input("Current GPA", min_value=0.0, max_value=20.0, value=12.0)
+                    attendance_rate = st.number_input("Attendance Rate (%)", min_value=0.0, max_value=100.0, value=80.0)
+                    failed_courses = st.number_input("Failed Courses", min_value=0, max_value=10, value=0)
+                
+                with col3:
+                    absences_count = st.number_input("Absences Count", min_value=0, max_value=50, value=5)
+                    late_submissions = st.number_input("Late Submissions", min_value=0, max_value=20, value=2)
+                    participation_score = st.number_input("Participation Score", min_value=0.0, max_value=10.0, value=6.0)
+                
+                submitted = st.form_submit_button("🔮 Predict Risk", use_container_width=True, type="primary")
+                
+                if submitted:
+                    student_data = {
+                        'age': age,
+                        'gender': gender,
+                        'admission_grade': admission_grade,
+                        'current_gpa': current_gpa,
+                        'semester_1_gpa': current_gpa,
+                        'semester_2_gpa': current_gpa,
+                        'semester_3_gpa': current_gpa,
+                        'attendance_rate': attendance_rate,
+                        'failed_courses': failed_courses,
+                        'absences_count': absences_count,
+                        'late_submissions': late_submissions,
+                        'participation_score': participation_score,
+                        'average_grade': current_gpa,
+                        'library_visits': 10,
+                        'online_portal_logins': 50,
+                        'extracurricular_activities': 1,
+                        'distance_from_campus': 10,
+                        'scholarship_status': 'No',
+                        'financial_aid': 'No',
+                        'accommodation_type': 'Home',
+                        'previous_education': 'Public'
+                    }
+                    
+                    result = predictor.predict_single(student_data)
+                    
+                    st.markdown("---")
+                    st.markdown("### Prediction Result")
+                    
+                    risk_color = {
+                        'Low': '🟢',
+                        'Medium': '🟡', 
+                        'High': '🔴'
+                    }
+                    
+                    r1, r2, r3 = st.columns(3)
+                    r1.metric("Risk Category", f"{risk_color.get(result['risk_category'], '')} {result['risk_category']}")
+                    r2.metric("Risk Score", f"{result['risk_score']:.1f}%")
+                    r3.metric("Dropout Probability", f"{result['dropout_probability']*100:.1f}%")
+                    
+                    if result['risk_category'] == 'High':
+                        st.error("⚠️ This student is at HIGH risk of dropout. Immediate intervention recommended.")
+                    elif result['risk_category'] == 'Medium':
+                        st.warning("⚡ This student shows MEDIUM risk. Monitor closely and consider support.")
+                    else:
+                        st.success("✅ This student is at LOW risk. Continue regular monitoring.")
 
 def render_login_page():
-    """Renders a professional mocked login landing page."""
+    """Wrapper that calls the new auth page."""
+    # Import inside function to avoid circular import
+    from auth_ui import render_auth_page
+    render_auth_page()
+
+
+def _deprecated_render_login_page():
+    """DEPRECATED: Old login page - kept for reference."""
     # Custom styling for login
     st.markdown("""
         <style>
@@ -282,9 +600,9 @@ def render_login_page():
 
 def render_logout():
     """Handles logout logic."""
-    if st.sidebar.button("Logout", key="logout_btn", type="secondary"):
-        st.session_state['logged_in'] = False
-        st.rerun()
+    from app.auth_ui import render_logout_button, render_user_profile_sidebar
+    render_user_profile_sidebar()
+    render_logout_button()
 
 def render_footer():
     """Renders the application footer."""

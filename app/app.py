@@ -18,9 +18,15 @@ from ui_components import (
     render_data_suite_page,
     render_analytics_page,
     render_prediction_page,
-    render_login_page,
     render_footer
 )
+from auth_ui import (
+    render_auth_page,
+    render_logout_button,
+    render_user_profile_sidebar,
+    render_profile_page
+)
+from history_ui import render_history_page
 
 # Page configuration
 st.set_page_config(
@@ -31,15 +37,19 @@ st.set_page_config(
 # Initialize Session State
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
+if 'user' not in st.session_state:
+    st.session_state['user'] = None
+if 'auth_page' not in st.session_state:
+    st.session_state['auth_page'] = 'login'
 
 # Render Styles (Global)
 render_styles()
 
 # Define Navigation logic
 if not st.session_state['logged_in']:
-    # Show ONLY the login page as landing and DISABLE sidebar
-    login_page = st.Page(render_login_page, title="Login", icon=":material/login:")
-    pg = st.navigation([login_page], position="hidden")
+    # Show ONLY the auth page as landing and DISABLE sidebar
+    auth_page = st.Page(render_auth_page, title="Login", icon=":material/login:")
+    pg = st.navigation([auth_page], position="hidden")
     
     # Force hide sidebar via CSS just in case
     st.markdown("<style> [data-testid='stSidebar'] { display: none; } </style>", unsafe_allow_html=True)
@@ -55,13 +65,17 @@ else:
         ],
         "Intelligence": [
             st.Page(render_prediction_page, title="Risk Prediction", icon=":material/psychology:"),
+        ],
+        "Account": [
+            st.Page(render_profile_page, title="Profile", icon=":material/person:"),
+            st.Page(render_history_page, title="History", icon=":material/history:"),
         ]
     }
     pg = st.navigation(pages)
     
-    # Add Logout to sidebar
-    import ui_components
-    ui_components.render_logout()
+    # Add User info and Logout to sidebar
+    render_user_profile_sidebar()
+    render_logout_button()
 
 # Execute selected page
 pg.run()

@@ -1,0 +1,179 @@
+"""
+History UI components for activity tracking display.
+"""
+
+import streamlit as st
+from datetime import datetime
+from src.history import tracker
+
+
+def render_history_page():
+    """Render the history/activity log page."""
+    st.markdown("""
+        <style>
+        .history-header {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .history-subheader {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+        .event-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .event-type {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        .type-data-upload { background: #3b82f6; color: white; }
+        .type-data-clean { background: #22c55e; color: white; }
+        .type-model-train { background: #f59e0b; color: black; }
+        .type-batch-predict { background: #8b5cf6; color: white; }
+        .type-single-predict { background: #06b6d4; color: white; }
+        .type-user-login { background: #64748b; color: white; }
+        .type-user-logout { background: #475569; color: white; }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="history-header">Activity History</div>', unsafe_allow_html=True)
+    st.markdown('<div class="history-subheader">Track all system activities and events</div>', unsafe_allow_html=True)
+    
+    # Filters
+    col1, col2, col3 = st.columns([2, 2, 1])
+    
+    with col1:
+        filter_type = st.selectbox(
+            "Filter by Type",
+            ["All Events"] + list(tracker.EVENT_TYPES.values()),
+            key="history_filter"
+        )
+    
+    with col2:
+        limit = st.slider("Show Events", 10, 100, 25)
+    
+    with col3:
+        if st.button("🔄 Refresh"):
+            st.rerun()
+    
+    # Get events
+    event_type = None
+    if filter_type != "All Events":
+        # Reverse lookup type key
+        for key, val in tracker.EVENT_TYPES.items():
+            if val == filter_type:
+                event_type = key
+                break
+    
+    events = tracker.get_events(event_type=event_type, limit=limit)
+    
+    # Stats summary
+    stats = tracker.get_stats()
+    st.markdown("### 📊 Activity Summary")
+    
+    stat_cols = st.columns(4)
+    stat_cols[0].metric("Total Events", stats['total_events'])
+    stat_cols[1].metric("Data Operations", 
+                        stats['by_type'].get('DATA_CLEAN', 0) + stats['by_type'].get('DATA_UPLOAD', 0))
+    stat_cols[2].metric("Predictions", 
+                        stats['by_type'].get('BATCH_PREDICT', 0) + stats['by_type'].get('SINGLE_PREDICT', 0))
+    stat_cols[3].metric("Model Trainings", stats['by_type'].get('MODEL_TRAIN', 0))
+    
+    st.divider()
+    
+    # Event list
+    st.markdown("### 📜 Recent Activity")
+    
+    if not events:
+        st.info("No activity recorded yet. Start using the system to see events here.")
+    else:
+        for event in events:
+            render_event_card(event)
+    
+    # Clear history (admin only)
+    st.divider()
+    with st.expander("🗑️ Danger Zone"):
+        st.warning("This will permanently delete all activity history.")
+        if st.button("Clear All History", type="secondary"):
+            tracker.clear_history()
+            st.success("History cleared.")
+            st.rerun()
+
+
+def render_event_card(event: dict):
+    """Render a single event card."""
+    event_type = event.get('type', 'UNKNOWN')
+    type_label = event.get('type_label', event_type)
+    description = event.get('description', 'No description')
+    timestamp = event.get('timestamp', '')
+    user = event.get('user', 'System')
+    
+    # Format timestamp
+    try:
+        dt = datetime.fromisoformat(timestamp)
+        time_str = dt.strftime("%b %d, %Y %H:%M")
+    except:
+        time_str = timestamp
+    
+    # Type badge color mapping
+    type_colors = {
+        'DATA_UPLOAD': '🔵',
+        'DATA_CLEAN': '🟢',
+        'MODEL_TRAIN': '🟡',
+        'BATCH_PREDICT': '🟣',
+        'SINGLE_PREDICT': '🔵',
+        'USER_LOGIN': '⚪',
+        'USER_LOGOUT': '⚫',
+        'EXPORT_DATA': '🟠'
+    }
+    
+    icon = type_colors.get(event_type, '⚪')
+    
+    with st.container():
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            st.markdown(f"""
+                **{icon} {type_label}**  
+                {description}  
+                <small style="color: #64748b;">👤 {user or 'System'} • 🕒 {time_str}</small>
+            """, unsafe_allow_html=True)
+        with col2:
+            # Show details if available
+            details = event.get('details', {})
+            if details:
+                with st.popover("Details"):
+                    st.json(details)
+        st.markdown("---")
+
+
+def render_activity_widget():
+    """Render a compact activity widget for the sidebar or dashboard."""
+    events = tracker.get_recent_activity(limit=5)
+    
+    st.markdown("#### 🕒 Recent Activity")
+    
+    if not events:
+        st.caption("No recent activity")
+    else:
+        for event in events:
+            icon = {'DATA_CLEAN': '🧹', 'MODEL_TRAIN': '🎓', 'BATCH_PREDICT': '🔮', 
+                   'DATA_UPLOAD': '📤', 'USER_LOGIN': '👤'}.get(event.get('type'), '📌')
+            
+            try:
+                dt = datetime.fromisoformat(event.get('timestamp', ''))
+                time_str = dt.strftime("%H:%M")
+            except:
+                time_str = "..."
+            
+            st.caption(f"{icon} {event.get('description', 'Event')[:40]}... ({time_str})")
