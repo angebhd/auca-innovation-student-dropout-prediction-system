@@ -635,11 +635,11 @@ Top Predictors: Current GPA, Failed Courses, and Attendance Rate are the stronge
                 st.info(chart_info['importance'])
         plot_feature_importance(df)
 
-def render_prediction_page():
-    """Placeholder for the AI Prediction page."""
-    render_header()
-    st.header("Predictive Modeling Engine")
-    st.info("Coming Soon: ML-based student risk prediction model")
+# def render_prediction_page():
+    # """Placeholder for the AI Prediction page."""
+    # render_header()
+    # st.header("Predictive Modeling Engine")
+    # st.info("Coming Soon: ML-based student risk prediction model")
 
 def render_login_page():
     """Renders a professional mocked login landing page."""
