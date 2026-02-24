@@ -19,6 +19,22 @@ from src.logger import setup_logging
 
 logger = setup_logging(__name__)
 
+from ui_components import (
+    render_styles,
+    render_home_page,
+    render_data_suite_page,
+    render_analytics_page,
+    render_prediction_page,
+    render_login_page,
+    render_footer
+)
+
+
+# Page configuration
+st.set_page_config(
+    page_title="Student Dropout Prediction | AUCA",
+    layout="wide"
+)
 # Load config
 try:
     with open("config/config.yaml", "r") as f:
@@ -619,11 +635,11 @@ Top Predictors: Current GPA, Failed Courses, and Attendance Rate are the stronge
                 st.info(chart_info['importance'])
         plot_feature_importance(df)
 
-def render_prediction_page():
-    """Placeholder for the AI Prediction page."""
-    render_header()
-    st.header("Predictive Modeling Engine")
-    st.info("Coming Soon: ML-based student risk prediction model")
+# def render_prediction_page():
+    # """Placeholder for the AI Prediction page."""
+    # render_header()
+    # st.header("Predictive Modeling Engine")
+    # st.info("Coming Soon: ML-based student risk prediction model")
 
 def render_login_page():
     """Renders a professional mocked login landing page."""
