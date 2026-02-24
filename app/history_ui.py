@@ -11,18 +11,6 @@ def render_history_page():
     """Render the history/activity log page."""
     st.markdown("""
         <style>
-        .history-header {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-        }
-        .history-subheader {
-            color: #94a3b8;
-            margin-bottom: 2rem;
-        }
         .event-card {
             background: rgba(30, 41, 59, 0.5);
             border: 1px solid #334155;
@@ -47,8 +35,8 @@ def render_history_page():
         </style>
     """, unsafe_allow_html=True)
     
-    st.markdown('<div class="history-header">Activity History</div>', unsafe_allow_html=True)
-    st.markdown('<div class="history-subheader">Track all system activities and events</div>', unsafe_allow_html=True)
+    st.markdown('<p class="page-title">Activity History</p>', unsafe_allow_html=True)
+    st.markdown('<p class="page-subtitle">Track system activities, data processing, and model training events</p>', unsafe_allow_html=True)
     
     # Filters
     col1, col2, col3 = st.columns([2, 2, 1])
@@ -64,7 +52,7 @@ def render_history_page():
         limit = st.slider("Show Events", 10, 100, 25)
     
     with col3:
-        if st.button("🔄 Refresh"):
+        if st.button("Refresh"):
             st.rerun()
     
     # Get events
@@ -80,7 +68,7 @@ def render_history_page():
     
     # Stats summary
     stats = tracker.get_stats()
-    st.markdown("### 📊 Activity Summary")
+    st.markdown("### Activity Summary")
     
     stat_cols = st.columns(4)
     stat_cols[0].metric("Total Events", stats['total_events'])
@@ -93,7 +81,7 @@ def render_history_page():
     st.divider()
     
     # Event list
-    st.markdown("### 📜 Recent Activity")
+    st.markdown("### Recent Activity")
     
     if not events:
         st.info("No activity recorded yet. Start using the system to see events here.")
@@ -103,7 +91,7 @@ def render_history_page():
     
     # Clear history (admin only)
     st.divider()
-    with st.expander("🗑️ Danger Zone"):
+    with st.expander("Administration"):
         st.warning("This will permanently delete all activity history.")
         if st.button("Clear All History", type="secondary"):
             tracker.clear_history()
@@ -126,27 +114,27 @@ def render_event_card(event: dict):
     except:
         time_str = timestamp
     
-    # Type badge color mapping
-    type_colors = {
-        'DATA_UPLOAD': '🔵',
-        'DATA_CLEAN': '🟢',
-        'MODEL_TRAIN': '🟡',
-        'BATCH_PREDICT': '🟣',
-        'SINGLE_PREDICT': '🔵',
-        'USER_LOGIN': '⚪',
-        'USER_LOGOUT': '⚫',
-        'EXPORT_DATA': '🟠'
+    # Type badge styling
+    type_styles = {
+        'DATA_UPLOAD': '#3b82f6',
+        'DATA_CLEAN': '#22c55e',
+        'MODEL_TRAIN': '#f59e0b',
+        'BATCH_PREDICT': '#8b5cf6',
+        'SINGLE_PREDICT': '#06b6d4',
+        'USER_LOGIN': '#64748b',
+        'USER_LOGOUT': '#475569',
+        'EXPORT_DATA': '#f97316'
     }
     
-    icon = type_colors.get(event_type, '⚪')
+    badge_color = type_styles.get(event_type, '#64748b')
     
     with st.container():
         col1, col2 = st.columns([4, 1])
         with col1:
             st.markdown(f"""
-                **{icon} {type_label}**  
-                {description}  
-                <small style="color: #64748b;">👤 {user or 'System'} • 🕒 {time_str}</small>
+                <span style="background: {badge_color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">{type_label}</span>  
+                <br><span style="color: #1e293b; font-weight: 500;">{description}</span>  
+                <br><small style="color: #64748b;">{user or 'System'} | {time_str}</small>
             """, unsafe_allow_html=True)
         with col2:
             # Show details if available
@@ -161,19 +149,16 @@ def render_activity_widget():
     """Render a compact activity widget for the sidebar or dashboard."""
     events = tracker.get_recent_activity(limit=5)
     
-    st.markdown("#### 🕒 Recent Activity")
+    st.markdown("#### Recent Activity")
     
     if not events:
         st.caption("No recent activity")
     else:
         for event in events:
-            icon = {'DATA_CLEAN': '🧹', 'MODEL_TRAIN': '🎓', 'BATCH_PREDICT': '🔮', 
-                   'DATA_UPLOAD': '📤', 'USER_LOGIN': '👤'}.get(event.get('type'), '📌')
-            
             try:
                 dt = datetime.fromisoformat(event.get('timestamp', ''))
                 time_str = dt.strftime("%H:%M")
             except:
                 time_str = "..."
             
-            st.caption(f"{icon} {event.get('description', 'Event')[:40]}... ({time_str})")
+            st.caption(f"{event.get('description', 'Event')[:40]}... ({time_str})")

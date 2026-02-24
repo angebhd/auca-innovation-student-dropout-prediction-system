@@ -14,12 +14,12 @@ logger = setup_logging(__name__)
 
 from ui_components import (
     render_styles,
-    render_home_page,
     render_data_suite_page,
     render_analytics_page,
     render_prediction_page,
     render_footer
 )
+from dashboard import render_professional_dashboard
 from auth_ui import (
     render_auth_page,
     render_logout_button,
@@ -54,21 +54,19 @@ if not st.session_state['logged_in']:
     # Force hide sidebar via CSS just in case
     st.markdown("<style> [data-testid='stSidebar'] { display: none; } </style>", unsafe_allow_html=True)
 else:
-    # Full Protected Navigation
+    # Full Protected Navigation - Ordered by importance
     pages = {
-        "Overview": [
-            st.Page(render_home_page, title="Home", icon=":material/home:"),
+        "Main": [
+            st.Page(render_professional_dashboard, title="Dashboard", icon=":material/dashboard:"),
+            st.Page(render_prediction_page, title="Risk Assessment", icon=":material/psychology:"),
         ],
-        "Data Center": [
-            st.Page(render_data_suite_page, title="Data Suite", icon=":material/cleaning_services:"),
+        "Analysis": [
             st.Page(render_analytics_page, title="Analytics", icon=":material/bar_chart:"),
+            st.Page(render_data_suite_page, title="Data Management", icon=":material/database:"),
         ],
-        "Intelligence": [
-            st.Page(render_prediction_page, title="Risk Prediction", icon=":material/psychology:"),
-        ],
-        "Account": [
-            st.Page(render_profile_page, title="Profile", icon=":material/person:"),
-            st.Page(render_history_page, title="History", icon=":material/history:"),
+        "System": [
+            st.Page(render_history_page, title="Activity Log", icon=":material/history:"),
+            st.Page(render_profile_page, title="Settings", icon=":material/settings:"),
         ]
     }
     pg = st.navigation(pages)

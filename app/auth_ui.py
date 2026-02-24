@@ -11,62 +11,95 @@ def render_auth_styles():
     """Render custom CSS styles for authentication pages."""
     st.markdown("""
         <style>
-        .auth-container {
+        /* Hide default Streamlit elements for cleaner login */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        
+        /* Center the login form vertically */
+        .main .block-container {
+            padding-top: 2rem;
+            padding-bottom: 0;
+            max-width: 100%;
+        }
+        
+        .login-wrapper {
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            padding: 3rem;
-            border-radius: 12px;
-            background-color: #1e293b;
+            align-items: center;
+            min-height: 80vh;
+        }
+        
+        .login-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
             border: 1px solid #334155;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            margin-top: 3rem;
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
-        .auth-header {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        
+        .login-logo {
             text-align: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
         }
-        .auth-subheader {
-            font-size: 1rem;
-            color: #94a3b8;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .auth-link {
+        
+        .login-logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
             color: #3b82f6;
-            cursor: pointer;
-            text-decoration: underline;
+            margin: 0;
+            letter-spacing: -0.5px;
         }
-        .auth-footer {
-            margin-top: 1.5rem;
-            text-align: center;
-            color: #94a3b8;
+        
+        .login-logo p {
+            color: #64748b;
             font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .credentials-hint {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .credentials-hint code {
+            background: rgba(59, 130, 246, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
         }
         </style>
     """, unsafe_allow_html=True)
 
 
 def render_login_page():
-    """Render the login page with authentication."""
+    """Render a compact, professional login page."""
     render_auth_styles()
     
-    _, col2, _ = st.columns([1, 2, 1])
+    # Create centered layout
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     
     with col2:
-        st.markdown('<div class="auth-container">', unsafe_allow_html=True)
-        st.markdown('<div class="auth-header">Umoja Platform</div>', unsafe_allow_html=True)
-        st.markdown('<div class="auth-subheader">Sign in to your account</div>', unsafe_allow_html=True)
+        # Logo and branding
+        st.markdown("""
+            <div class="login-logo">
+                <h1>UMOJA</h1>
+                <p>Student Success Prediction Platform</p>
+            </div>
+        """, unsafe_allow_html=True)
         
+        # Login form
         with st.form("login_form", clear_on_submit=False):
-            username = st.text_input("Username or Email", placeholder="Enter your username or email")
-            password = st.text_input("Password", type="password", placeholder="Enter your password")
+            username = st.text_input("Username", placeholder="admin")
+            password = st.text_input("Password", type="password", placeholder="••••••••")
+            
+            st.markdown("<div style='height: 0.5rem'></div>", unsafe_allow_html=True)
             
             submitted = st.form_submit_button("Sign In", use_container_width=True)
             
@@ -77,7 +110,6 @@ def render_login_page():
                         st.session_state['logged_in'] = True
                         st.session_state['user'] = user_data
                         
-                        # Log login event
                         from src.history import log_user_login
                         log_user_login(user_data.get('username', username))
                         
@@ -86,13 +118,14 @@ def render_login_page():
                     else:
                         st.error(message)
                 else:
-                    st.warning("Please enter username and password")
+                    st.warning("Please enter credentials")
         
-        # Show default credentials hint
-        st.markdown("---")
-        st.caption("**Default credentials:** admin / admin123")
-        
-        st.markdown('</div>', unsafe_allow_html=True)
+        # Credentials hint
+        st.markdown("""
+            <div class="credentials-hint">
+                <small style="color: #64748b;">Default: <code>admin</code> / <code>admin123</code></small>
+            </div>
+        """, unsafe_allow_html=True)
 
 
 def render_auth_page():
@@ -122,7 +155,7 @@ def render_user_profile_sidebar():
     if 'user' in st.session_state and st.session_state['user']:
         user = st.session_state['user']
         st.sidebar.markdown("---")
-        st.sidebar.markdown(f"**👤 {user.get('full_name', user.get('username', 'User'))}**")
+        st.sidebar.markdown(f"**{user.get('full_name', user.get('username', 'User'))}**")
         st.sidebar.caption(f"@{user.get('username', 'unknown')}")
         st.sidebar.markdown("---")
 
@@ -142,7 +175,8 @@ def render_profile_page():
     
     with col1:
         st.markdown("### Profile Picture")
-        st.markdown("""
+        initials = ''.join([n[0].upper() for n in user.get('full_name', 'U').split()[:2]]) or 'U'
+        st.markdown(f"""
             <div style="
                 width: 150px; 
                 height: 150px; 
@@ -151,10 +185,11 @@ def render_profile_page():
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 4rem;
+                font-size: 3rem;
+                font-weight: 700;
                 color: white;
                 margin: 1rem 0;
-            ">👤</div>
+            ">{initials}</div>
         """, unsafe_allow_html=True)
     
     with col2:

@@ -31,85 +31,146 @@ def render_styles():
     st.markdown("""
         <style>
         /* Main container styling */
-        .stApp {
-            background: transparent;
+        .main .block-container {
+            padding-top: 1rem;
+            max-width: 1200px;
         }
         
         /* Buttons */
         .stButton>button {
-            width: 100%;
-            border-radius: 8px;
-            height: 3.2em;
+            border-radius: 6px;
+            height: 2.8em;
             background-color: #3b82f6;
             color: white;
             border: none;
-            transition: all 0.3s ease;
-            font-weight: 600;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
         .stButton>button:hover {
             background-color: #2563eb;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transform: translateY(-1px);
         }
         
-        /* Headers */
-        .header {
-            font-size: 2.8rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
+        /* Page Title */
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 0.25rem;
         }
-        .subheader {
+        .page-subtitle {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Metric Cards */
+        .metric-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        .metric-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+        .metric-delta-positive { color: #22c55e; }
+        .metric-delta-negative { color: #ef4444; }
+        .metric-delta-neutral { color: #f59e0b; }
+        
+        /* Section Headers */
+        .section-header {
             font-size: 1.1rem;
-            color: #94a3b8;
-            margin-bottom: 2.5rem;
-            font-weight: 400;
-            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin: 1.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #334155;
+        }
+        
+        /* Insight Box */
+        .insight-box {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .insight-box p {
+            color: #cbd5e1;
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Warning Box */
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid #ef4444;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        
+        /* Success Box */
+        .success-box {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 3px solid #22c55e;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
         }
         
         /* Sidebar Styling */
         [data-testid="stSidebar"] {
-            background-image: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-            border-right: 1px solid #334155;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            border-right: 1px solid #1e293b;
         }
         [data-testid="stSidebar"] * {
-            color: #f8fafc !important;
+            color: #e2e8f0 !important;
         }
         
-        /* Sidebar Navigation Items */
-        [data-testid="stSidebarNav"] {
-            background-color: transparent !important;
-            padding-top: 1rem;
-        }
-        
-        /* Umoja Branding */
-        .sidebar-title {
-            padding: 1.5rem 1rem;
-            font-size: 1.6rem;
-            font-weight: 900;
+        .sidebar-brand {
+            padding: 1.25rem 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
             color: #3b82f6 !important;
-            letter-spacing: -1px;
+            letter-spacing: -0.5px;
             border-bottom: 1px solid #334155;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
+            margin-bottom: 1rem;
         }
         
-        /* Dataframes & Cards */
+        /* DataFrames */
         .stDataFrame {
             border: 1px solid #334155 !important;
-            border-radius: 10px;
+            border-radius: 8px;
+        }
+        
+        /* Tabs */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 8px;
+        }
+        .stTabs [data-baseweb="tab"] {
+            background: transparent;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
         }
         
         </style>
     """, unsafe_allow_html=True)
-    st.sidebar.markdown('<div class="sidebar-title">Umoja Team</div>', unsafe_allow_html=True)
+    st.sidebar.markdown('<div class="sidebar-brand">UMOJA</div>', unsafe_allow_html=True)
 
 def render_header():
     """Renders the main headers of the application."""
-    st.markdown('<div class="header">Student Dropout Prediction System</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subheader">Professional Data Management & Cleaning Suite</div>', unsafe_allow_html=True)
+    st.markdown('<p class="page-title">Data Management Suite</p>', unsafe_allow_html=True)
+    st.markdown('<p class="page-subtitle">Generate, upload, clean, and export student datasets</p>', unsafe_allow_html=True)
 
 def render_data_acquisition_column():
     """Renders the column for data acquisition (Generation and Upload)."""
@@ -217,31 +278,164 @@ def render_processing_export_column():
         )
 
 def render_home_page():
-    """Renders the Home page with project overview."""
-    st.markdown("## AUCA Innovation Lab: Big Data Student Success System")
-    st.info("Advanced analytics initiative focused on predictive modeling for student retention at the Adventist University of Central Africa.")
+    """Renders the Dashboard/Home page with key metrics and insights."""
+    from src.prediction import predictor
+    from src.analytics import analytics
     
-    st.markdown("""
-    ### Problem Statement
-    Higher education institutions face challenges in identifying students who are at risk of dropping out or failing courses at an early stage. Academic performance data, attendance records, and learning behavior are often analyzed too late, resulting in delayed interventions and increased failure rates.
-
-    ### Proposed ML-Based Solution
-    We are developing a machine learning–based prediction system that analyzes historical student data such as grades, attendance, and course engagement to classify students into risk categories. The system will generate early warning indicators to support timely academic interventions by lecturers and academic administrators.
+    st.markdown('<p class="page-title">Dashboard</p>', unsafe_allow_html=True)
+    st.markdown('<p class="page-subtitle">Student retention analytics and risk monitoring</p>', unsafe_allow_html=True)
     
-    ### System Architecture & Pipeline
-    1. **Data Engineering**: Automated ingestion and cleaning of disparate student records from backend systems.
-    2. **Exploratory Data Analysis**: Real-time visualization of academic trends using Big Data visualization techniques.
-    3. **Predictive Modeling**: Implementation of classification algorithms to identify churn risk before it becomes critical.
-    4. **Intervention Tracking**: Monitoring the impact of administrative support on student outcomes.
-    """)
+    # Check for available data
+    ensure_cleaned_dir()
+    cleaned_files = [f for f in os.listdir(CLEANED_DATA_PATH) if f.endswith(".csv")]
+    
+    if not cleaned_files:
+        st.info("Welcome to the Student Success Prediction Platform. To get started:")
+        st.markdown("""
+        1. Navigate to **Data Suite** to upload or generate student data
+        2. Clean and process the dataset
+        3. Go to **Predictions** to train the model
+        4. Return here to view the dashboard
+        """)
+        return
+    
+    # Load most recent data
+    latest_file = cleaned_files[-1]
+    df = pd.read_csv(os.path.join(CLEANED_DATA_PATH, latest_file))
+    
+    # Run predictions if model is trained
+    if predictor.is_trained and 'risk_category' not in df.columns:
+        df = predictor.predict(df)
+    
+    # Key Metrics Row
+    col1, col2, col3, col4 = st.columns(4)
+    
+    total_students = len(df)
+    avg_gpa = df['current_gpa'].mean() if 'current_gpa' in df.columns else 0
+    avg_attendance = df['attendance_rate'].mean() if 'attendance_rate' in df.columns else 0
+    high_risk_count = len(df[df['risk_category'] == 'High']) if 'risk_category' in df.columns else 0
+    
+    col1.metric("Total Students", f"{total_students:,}")
+    col2.metric("Average GPA", f"{avg_gpa:.2f}")
+    col3.metric("Attendance Rate", f"{avg_attendance:.1f}%")
+    col4.metric("High Risk", high_risk_count, delta=f"{high_risk_count/total_students*100:.1f}%" if total_students > 0 else "0%", delta_color="inverse")
+    
+    st.markdown('<p class="section-header">Risk Overview</p>', unsafe_allow_html=True)
+    
+    if 'risk_category' in df.columns:
+        risk_col1, risk_col2 = st.columns([1.5, 2])
+        
+        with risk_col1:
+            # Risk breakdown
+            risk_counts = df['risk_category'].value_counts()
+            
+            for risk_level in ['High', 'Medium', 'Low']:
+                count = risk_counts.get(risk_level, 0)
+                pct = count / total_students * 100 if total_students > 0 else 0
+                color = {'High': '#ef4444', 'Medium': '#f59e0b', 'Low': '#22c55e'}[risk_level]
+                
+                st.markdown(f"""
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #334155;">
+                        <span style="color: {color}; font-weight: 500;">{risk_level} Risk</span>
+                        <span style="color: #e2e8f0; font-weight: 600;">{count} <small style="color: #64748b;">({pct:.1f}%)</small></span>
+                    </div>
+                """, unsafe_allow_html=True)
+            
+            # Interpretation
+            high_pct = risk_counts.get('High', 0) / total_students * 100 if total_students > 0 else 0
+            if high_pct > 20:
+                st.markdown("""
+                    <div class="warning-box">
+                        <p><strong>Alert:</strong> High-risk students exceed 20% of the population. 
+                        Immediate intervention programs are recommended to prevent dropout.</p>
+                    </div>
+                """, unsafe_allow_html=True)
+            elif high_pct > 10:
+                st.markdown("""
+                    <div class="insight-box">
+                        <p><strong>Note:</strong> High-risk population is moderate. 
+                        Consider targeted support for students with GPA below 12 or attendance below 70%.</p>
+                    </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                    <div class="success-box">
+                        <p><strong>Good:</strong> Risk levels are within acceptable range. 
+                        Continue monitoring and maintain current support programs.</p>
+                    </div>
+                """, unsafe_allow_html=True)
+        
+        with risk_col2:
+            risk_chart = analytics.create_risk_distribution_chart(df)
+            if risk_chart:
+                risk_chart.update_layout(height=300, margin=dict(t=30, b=30, l=30, r=30))
+                st.plotly_chart(risk_chart, use_container_width=True)
+    else:
+        st.warning("Train a prediction model to view risk analysis.")
+    
+    # Performance Insights
+    st.markdown('<p class="section-header">Academic Performance</p>', unsafe_allow_html=True)
+    
+    perf_col1, perf_col2 = st.columns(2)
+    
+    with perf_col1:
+        gpa_chart = analytics.create_gpa_distribution_chart(df)
+        if gpa_chart:
+            gpa_chart.update_layout(height=280, margin=dict(t=40, b=40, l=40, r=40))
+            st.plotly_chart(gpa_chart, use_container_width=True)
+        
+        # GPA Interpretation
+        if 'current_gpa' in df.columns:
+            below_threshold = len(df[df['current_gpa'] < 12])
+            st.markdown(f"""
+                <div class="insight-box">
+                    <p><strong>Interpretation:</strong> {below_threshold} students ({below_threshold/total_students*100:.1f}%) 
+                    have GPA below 12.0, indicating academic difficulty. 
+                    These students may benefit from tutoring or academic counseling.</p>
+                </div>
+            """, unsafe_allow_html=True)
+    
+    with perf_col2:
+        attendance_chart = analytics.create_attendance_distribution_chart(df)
+        if attendance_chart:
+            attendance_chart.update_layout(height=280, margin=dict(t=40, b=40, l=40, r=40))
+            st.plotly_chart(attendance_chart, use_container_width=True)
+        
+        # Attendance Interpretation
+        if 'attendance_rate' in df.columns:
+            low_attendance = len(df[df['attendance_rate'] < 70])
+            st.markdown(f"""
+                <div class="insight-box">
+                    <p><strong>Interpretation:</strong> {low_attendance} students ({low_attendance/total_students*100:.1f}%) 
+                    have attendance below 70%. Low attendance is strongly correlated with dropout risk. 
+                    Consider attendance monitoring interventions.</p>
+                </div>
+            """, unsafe_allow_html=True)
+    
+    # Quick Actions
+    st.markdown('<p class="section-header">Quick Actions</p>', unsafe_allow_html=True)
+    
+    action_col1, action_col2, action_col3 = st.columns(3)
+    
+    with action_col1:
+        if st.button("View Full Analytics", use_container_width=True):
+            st.switch_page("pages/analytics")
+    
+    with action_col2:
+        if st.button("Run New Predictions", use_container_width=True):
+            st.switch_page("pages/predictions")
+    
+    with action_col3:
+        if st.button("Process New Data", use_container_width=True):
+            st.switch_page("pages/data_suite")
 
 def render_analytics_page():
-    """Render the Analytics page with interactive charts."""
+    """Render the Analytics page with interactive charts and interpretations."""
     from src.analytics import analytics
     from src.prediction import predictor
     
-    st.markdown('<div class="header">Exploratory Data Analysis</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subheader">Interactive visualization of student performance metrics</div>', unsafe_allow_html=True)
+    st.markdown('<p class="page-title">Exploratory Data Analysis</p>', unsafe_allow_html=True)
+    st.markdown('<p class="page-subtitle">Interactive visualization and interpretation of student performance metrics</p>', unsafe_allow_html=True)
     
     # Data source selection
     ensure_cleaned_dir()
@@ -249,7 +443,7 @@ def render_analytics_page():
     
     if not cleaned_files:
         st.warning("No cleaned datasets found. Please process a dataset in Data Suite first.")
-        st.info("Navigate to **Data Suite** → Clean a dataset → Return here for analytics.")
+        st.info("Navigate to **Data Suite** to clean a dataset, then return here for analytics.")
         return
     
     selected_file = st.selectbox("Select Dataset for Analysis", cleaned_files, key="analytics_file")
@@ -260,8 +454,10 @@ def render_analytics_page():
         with st.spinner("Running risk predictions..."):
             df = predictor.predict(df)
     
+    total_students = len(df)
+    
     # Overview metrics
-    st.markdown("### 📊 Overview Metrics")
+    st.markdown('<p class="section-header">Overview Metrics</p>', unsafe_allow_html=True)
     stats = analytics.get_overview_stats(df)
     
     col1, col2, col3, col4 = st.columns(4)
@@ -272,70 +468,165 @@ def render_analytics_page():
     
     st.divider()
     
-    # Charts section
-    st.markdown("### 📈 Performance Analytics")
+    # ==================== GPA DISTRIBUTION ====================
+    st.markdown('<p class="section-header">GPA Distribution Analysis</p>', unsafe_allow_html=True)
     
-    chart_col1, chart_col2 = st.columns(2)
+    chart_col1, chart_col2 = st.columns([1.5, 1])
     
     with chart_col1:
         gpa_chart = analytics.create_gpa_distribution_chart(df)
         if gpa_chart:
+            gpa_chart.update_layout(height=320, margin=dict(t=40, b=40, l=40, r=40))
             st.plotly_chart(gpa_chart, use_container_width=True)
     
     with chart_col2:
-        attendance_chart = analytics.create_attendance_distribution_chart(df)
-        if attendance_chart:
-            st.plotly_chart(attendance_chart, use_container_width=True)
-    
-    # Second row
-    chart_col3, chart_col4 = st.columns(2)
-    
-    with chart_col3:
-        semester_chart = analytics.create_semester_gpa_trend(df)
-        if semester_chart:
-            st.plotly_chart(semester_chart, use_container_width=True)
-    
-    with chart_col4:
-        failed_chart = analytics.create_failed_courses_chart(df)
-        if failed_chart:
-            st.plotly_chart(failed_chart, use_container_width=True)
+        if 'current_gpa' in df.columns:
+            avg_gpa = df['current_gpa'].mean()
+            median_gpa = df['current_gpa'].median()
+            below_12 = len(df[df['current_gpa'] < 12])
+            above_15 = len(df[df['current_gpa'] >= 15])
+            
+            st.markdown("**How to Read This Chart**")
+            st.caption("This histogram shows the distribution of Grade Point Averages across all students. The x-axis represents GPA (0-20 scale), while the y-axis shows the count of students.")
+            
+            st.markdown("**Key Findings**")
+            findings_df = pd.DataFrame({
+                'Metric': ['Average GPA', 'Median GPA', 'Below 12.0 (at risk)', 'Above 15.0 (high performing)'],
+                'Value': [f"{avg_gpa:.2f}", f"{median_gpa:.2f}", f"{below_12} ({below_12/total_students*100:.1f}%)", f"{above_15} ({above_15/total_students*100:.1f}%)"]
+            })
+            st.dataframe(findings_df, hide_index=True, use_container_width=True)
+            
+            if below_12 > 0:
+                st.info(f"**Recommendation:** Focus attention on the {below_12} students below 12.0 GPA who may need academic support.")
     
     st.divider()
     
-    # Risk analysis section (if predictions exist)
+    # ==================== ATTENDANCE DISTRIBUTION ====================
+    st.markdown('<p class="section-header">Attendance Rate Analysis</p>', unsafe_allow_html=True)
+    
+    att_col1, att_col2 = st.columns([1.5, 1])
+    
+    with att_col1:
+        attendance_chart = analytics.create_attendance_distribution_chart(df)
+        if attendance_chart:
+            attendance_chart.update_layout(height=320, margin=dict(t=40, b=40, l=40, r=40))
+            st.plotly_chart(attendance_chart, use_container_width=True)
+    
+    with att_col2:
+        if 'attendance_rate' in df.columns:
+            avg_att = df['attendance_rate'].mean()
+            below_70 = len(df[df['attendance_rate'] < 70])
+            below_50 = len(df[df['attendance_rate'] < 50])
+            
+            st.markdown("**How to Read This Chart**")
+            st.caption("This distribution shows class attendance percentages. Research shows attendance below 70% correlates strongly with dropout risk.")
+            
+            st.markdown("**Key Findings**")
+            att_df = pd.DataFrame({
+                'Metric': ['Average Attendance', 'Below 70% (warning)', 'Below 50% (critical)'],
+                'Value': [f"{avg_att:.1f}%", f"{below_70} ({below_70/total_students*100:.1f}%)", f"{below_50} ({below_50/total_students*100:.1f}%)"]
+            })
+            st.dataframe(att_df, hide_index=True, use_container_width=True)
+            
+            if below_50 > 0:
+                st.error(f"**Urgent:** {below_50} students with attendance below 50% require immediate outreach.")
+            elif below_70 > 0:
+                st.warning(f"**Monitor:** {below_70} students below 70% attendance need attention.")
+    
+    st.divider()
+    
+    # ==================== SEMESTER TRENDS & FAILURES ====================
+    st.markdown('<p class="section-header">Academic Trends</p>', unsafe_allow_html=True)
+    
+    trend_col1, trend_col2 = st.columns(2)
+    
+    with trend_col1:
+        semester_chart = analytics.create_semester_gpa_trend(df)
+        if semester_chart:
+            semester_chart.update_layout(height=300, margin=dict(t=40, b=40, l=40, r=40))
+            st.plotly_chart(semester_chart, use_container_width=True)
+        
+        st.caption("**Interpretation:** The box plot shows GPA variation across semesters. Wide boxes indicate high variance (inconsistent performance). Declining medians suggest systemic issues requiring curriculum review.")
+    
+    with trend_col2:
+        failed_chart = analytics.create_failed_courses_chart(df)
+        if failed_chart:
+            failed_chart.update_layout(height=300, margin=dict(t=40, b=40, l=40, r=40))
+            st.plotly_chart(failed_chart, use_container_width=True)
+        
+        if 'failed_courses' in df.columns:
+            no_failures = len(df[df['failed_courses'] == 0])
+            multiple_failures = len(df[df['failed_courses'] >= 3])
+            st.caption(f"**Interpretation:** {no_failures} students ({no_failures/total_students*100:.1f}%) have no failures. However, {multiple_failures} students have 3+ failures and are at high dropout risk.")
+    
+    st.divider()
+    
+    # ==================== RISK ANALYSIS ====================
     if 'risk_category' in df.columns:
-        st.markdown("### 🎯 Risk Analysis")
+        st.markdown('<p class="section-header">Risk Analysis</p>', unsafe_allow_html=True)
         
         risk_col1, risk_col2 = st.columns(2)
         
         with risk_col1:
             risk_pie = analytics.create_risk_distribution_chart(df)
             if risk_pie:
+                risk_pie.update_layout(height=350, margin=dict(t=40, b=40, l=40, r=40))
                 st.plotly_chart(risk_pie, use_container_width=True)
+            
+            risk_counts = df['risk_category'].value_counts()
+            high_risk = risk_counts.get('High', 0)
+            medium_risk = risk_counts.get('Medium', 0)
+            low_risk = risk_counts.get('Low', 0)
+            
+            st.markdown("**Risk Distribution Summary**")
+            risk_df = pd.DataFrame({
+                'Category': ['High Risk', 'Medium Risk', 'Low Risk'],
+                'Count': [high_risk, medium_risk, low_risk],
+                'Percentage': [f"{high_risk/total_students*100:.1f}%", f"{medium_risk/total_students*100:.1f}%", f"{low_risk/total_students*100:.1f}%"]
+            })
+            st.dataframe(risk_df, hide_index=True, use_container_width=True)
+            
+            if high_risk / total_students > 0.2:
+                st.error(f"**Critical Alert:** {high_risk} students ({high_risk/total_students*100:.1f}%) are classified as high risk. This exceeds the 20% threshold. Immediate intervention programs are strongly recommended.")
         
         with risk_col2:
             scatter = analytics.create_gpa_vs_attendance_scatter(df)
             if scatter:
+                scatter.update_layout(height=350, margin=dict(t=40, b=40, l=40, r=40))
                 st.plotly_chart(scatter, use_container_width=True)
+            
+            st.markdown("**How to Read This Chart**")
+            st.caption("Each dot represents a student. Position shows their GPA (y-axis) and attendance (x-axis). Color indicates risk level.")
+            st.markdown("**Pattern to Watch**")
+            st.caption("High-risk students (red) typically cluster in the lower-left quadrant (low GPA + low attendance). Students in upper-right are generally safe.")
+        
+        st.divider()
     
-    # Engagement section
-    st.markdown("### 👥 Engagement Analysis")
+    # ==================== ENGAGEMENT ANALYSIS ====================
+    st.markdown('<p class="section-header">Engagement Analysis</p>', unsafe_allow_html=True)
     
     eng_col1, eng_col2 = st.columns(2)
     
     with eng_col1:
         radar = analytics.create_engagement_radar(df)
         if radar:
+            radar.update_layout(height=380, margin=dict(t=50, b=50, l=50, r=50))
             st.plotly_chart(radar, use_container_width=True)
+        
+        st.caption("**Interpretation:** The radar chart compares average engagement metrics. A balanced shape indicates healthy engagement. Collapsed areas highlight metrics needing improvement.")
     
     with eng_col2:
         corr = analytics.create_correlation_heatmap(df)
         if corr:
+            corr.update_layout(height=380, margin=dict(t=50, b=50, l=50, r=50))
             st.plotly_chart(corr, use_container_width=True)
+        
+        st.caption("**Interpretation:** The correlation matrix shows relationships between variables. Dark red indicates strong positive correlation; dark blue indicates strong negative correlation. Use this to identify which factors most influence each other.")
     
-    # Data preview
     st.divider()
-    st.markdown("### 📋 Data Preview")
+    
+    # ==================== DATA PREVIEW ====================
+    st.markdown('<p class="section-header">Data Preview</p>', unsafe_allow_html=True)
     with st.expander("View Raw Data"):
         st.dataframe(df.head(50), use_container_width=True)
 
@@ -344,16 +635,22 @@ def render_prediction_page():
     from src.prediction import predictor
     from src.analytics import analytics
     
-    st.markdown('<div class="header">Risk Prediction Engine</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subheader">ML-powered dropout risk assessment and early warning system</div>', unsafe_allow_html=True)
+    st.markdown('<p class="page-title">Risk Prediction Engine</p>', unsafe_allow_html=True)
+    st.markdown('<p class="page-subtitle">ML-powered dropout risk assessment and early warning system</p>', unsafe_allow_html=True)
     
     # Tabs for different functions
-    tab1, tab2, tab3 = st.tabs(["🎓 Train Model", "🔮 Batch Prediction", "👤 Individual Prediction"])
+    tab1, tab2, tab3 = st.tabs(["Train Model", "Batch Prediction", "Individual Assessment"])
     
     # ==================== TAB 1: TRAIN MODEL ====================
     with tab1:
-        st.markdown("### Train Prediction Model")
-        st.info("Train a Random Forest classifier on cleaned student data to predict dropout risk.")
+        st.markdown('<p class="section-header">Train Prediction Model</p>', unsafe_allow_html=True)
+        
+        st.markdown("""
+            <div class="insight-box">
+                <p>Train a Random Forest classifier on cleaned student data to predict dropout risk. 
+                The model uses 16 features including GPA, attendance, and engagement metrics.</p>
+            </div>
+        """, unsafe_allow_html=True)
         
         ensure_cleaned_dir()
         cleaned_files = [f for f in os.listdir(CLEANED_DATA_PATH) if f.endswith(".csv")]
@@ -365,7 +662,7 @@ def render_prediction_page():
             
             col1, col2 = st.columns([2, 1])
             with col1:
-                if st.button("🚀 Train Model", type="primary", use_container_width=True):
+                if st.button("Train Model", type="primary", use_container_width=True):
                     with st.spinner("Training model... This may take a moment."):
                         df = pd.read_csv(os.path.join(CLEANED_DATA_PATH, training_file))
                         metrics = predictor.train(df)
@@ -379,14 +676,22 @@ def render_prediction_page():
             
             with col2:
                 if predictor.is_trained:
-                    st.success("✅ Model Ready")
+                    st.markdown("""
+                        <div class="success-box" style="padding: 0.5rem 1rem; margin: 0;">
+                            <p style="margin: 0;"><strong>Model Ready</strong></p>
+                        </div>
+                    """, unsafe_allow_html=True)
                 else:
-                    st.warning("⚠️ No Model")
+                    st.markdown("""
+                        <div class="warning-box" style="padding: 0.5rem 1rem; margin: 0;">
+                            <p style="margin: 0;"><strong>No Model</strong></p>
+                        </div>
+                    """, unsafe_allow_html=True)
             
             # Show training metrics
             if 'training_metrics' in st.session_state:
                 metrics = st.session_state['training_metrics']
-                st.markdown("#### Training Results")
+                st.markdown('<p class="section-header">Training Results</p>', unsafe_allow_html=True)
                 
                 m1, m2, m3, m4 = st.columns(4)
                 m1.metric("Accuracy", f"{metrics['accuracy']*100:.1f}%")
@@ -394,28 +699,59 @@ def render_prediction_page():
                 m3.metric("Recall", f"{metrics['recall']*100:.1f}%")
                 m4.metric("F1 Score", f"{metrics['f1_score']*100:.1f}%")
                 
+                st.markdown("""
+                    <div class="insight-box">
+                        <p><strong>Metric Interpretation:</strong></p>
+                        <ul style="color: #94a3b8; margin-left: 1rem;">
+                            <li><strong>Accuracy:</strong> Overall correct predictions</li>
+                            <li><strong>Precision:</strong> When predicting "at risk", how often is it correct</li>
+                            <li><strong>Recall:</strong> Of actual at-risk students, how many were identified</li>
+                            <li><strong>F1 Score:</strong> Balance between precision and recall</li>
+                        </ul>
+                    </div>
+                """, unsafe_allow_html=True)
+                
                 # Feature importance
                 importance_df = predictor.get_feature_importance()
                 if importance_df is not None:
-                    st.markdown("#### Feature Importance")
+                    st.markdown('<p class="section-header">Feature Importance</p>', unsafe_allow_html=True)
                     fig = analytics.create_feature_importance_chart(importance_df)
                     if fig:
+                        fig.update_layout(height=400, margin=dict(t=40, b=40, l=40, r=40))
                         st.plotly_chart(fig, use_container_width=True)
+                    
+                    st.markdown("""
+                        <div class="insight-box">
+                            <p><strong>Interpretation:</strong> Features at the top have the strongest influence on 
+                            dropout predictions. Focus intervention resources on improving these factors 
+                            for maximum impact on student retention.</p>
+                        </div>
+                    """, unsafe_allow_html=True)
     
     # ==================== TAB 2: BATCH PREDICTION ====================
     with tab2:
-        st.markdown("### Batch Prediction")
-        st.info("Run predictions on an entire dataset to identify at-risk students.")
+        st.markdown('<p class="section-header">Batch Prediction</p>', unsafe_allow_html=True)
+        
+        st.markdown("""
+            <div class="insight-box">
+                <p>Run predictions on an entire dataset to identify and prioritize at-risk students 
+                for intervention programs.</p>
+            </div>
+        """, unsafe_allow_html=True)
         
         if not predictor.is_trained:
-            st.warning("Please train a model first in the 'Train Model' tab.")
+            st.markdown("""
+                <div class="warning-box">
+                    <p>Please train a model first in the <strong>Train Model</strong> tab before running predictions.</p>
+                </div>
+            """, unsafe_allow_html=True)
         else:
             cleaned_files = [f for f in os.listdir(CLEANED_DATA_PATH) if f.endswith(".csv")]
             
             if cleaned_files:
                 pred_file = st.selectbox("Select Dataset for Prediction", cleaned_files, key="pred_file")
                 
-                if st.button("🔮 Run Predictions", type="primary"):
+                if st.button("Run Predictions", type="primary"):
                     with st.spinner("Running predictions..."):
                         df = pd.read_csv(os.path.join(CLEANED_DATA_PATH, pred_file))
                         results = predictor.predict(df)
@@ -434,29 +770,50 @@ def render_prediction_page():
                     results = st.session_state['prediction_results']
                     summary = st.session_state.get('risk_summary', {})
                     
-                    st.markdown("#### Risk Summary")
+                    st.markdown('<p class="section-header">Risk Summary</p>', unsafe_allow_html=True)
                     s1, s2, s3, s4 = st.columns(4)
                     s1.metric("Total Students", summary.get('total_students', 0))
-                    s2.metric("🔴 High Risk", summary.get('high_risk', 0), 
+                    s2.metric("High Risk", summary.get('high_risk', 0), 
                              f"{summary.get('high_risk_pct', 0):.1f}%")
-                    s3.metric("🟡 Medium Risk", summary.get('medium_risk', 0),
+                    s3.metric("Medium Risk", summary.get('medium_risk', 0),
                              f"{summary.get('medium_risk_pct', 0):.1f}%")
-                    s4.metric("🟢 Low Risk", summary.get('low_risk', 0),
+                    s4.metric("Low Risk", summary.get('low_risk', 0),
                              f"{summary.get('low_risk_pct', 0):.1f}%")
                     
                     # Risk distribution chart
-                    risk_chart = analytics.create_risk_distribution_chart(results)
-                    if risk_chart:
-                        st.plotly_chart(risk_chart, use_container_width=True)
+                    chart_col1, chart_col2 = st.columns([1.5, 1])
+                    
+                    with chart_col1:
+                        risk_chart = analytics.create_risk_distribution_chart(results)
+                        if risk_chart:
+                            risk_chart.update_layout(height=320, margin=dict(t=40, b=40, l=40, r=40))
+                            st.plotly_chart(risk_chart, use_container_width=True)
+                    
+                    with chart_col2:
+                        high_pct = summary.get('high_risk_pct', 0)
+                        if high_pct > 20:
+                            st.markdown(f"""
+                                <div class="warning-box">
+                                    <p><strong>Critical:</strong> {high_pct:.1f}% of students are high-risk. 
+                                    This exceeds the 20% threshold. Prioritize intervention resources immediately.</p>
+                                </div>
+                            """, unsafe_allow_html=True)
+                        else:
+                            st.markdown(f"""
+                                <div class="success-box">
+                                    <p><strong>Status:</strong> High-risk population at {high_pct:.1f}% is within 
+                                    manageable levels. Continue monitoring and targeted interventions.</p>
+                                </div>
+                            """, unsafe_allow_html=True)
                     
                     # Top at-risk students
-                    st.markdown("#### 🚨 Top At-Risk Students")
+                    st.markdown('<p class="section-header">Students Requiring Attention</p>', unsafe_allow_html=True)
                     top_risk = analytics.get_top_at_risk_students(results, n=10)
                     if not top_risk.empty:
                         st.dataframe(top_risk, use_container_width=True)
                     
                     # Recommendations
-                    st.markdown("#### 📋 Intervention Recommendations")
+                    st.markdown('<p class="section-header">Intervention Recommendations</p>', unsafe_allow_html=True)
                     recommendations = analytics.get_intervention_recommendations(summary)
                     for rec in recommendations:
                         st.markdown(f"- {rec}")
@@ -465,7 +822,7 @@ def render_prediction_page():
                     st.divider()
                     csv = results.to_csv(index=False).encode('utf-8')
                     st.download_button(
-                        "📥 Download Predictions CSV",
+                        "Download Predictions CSV",
                         csv,
                         f"predictions_{pred_file}",
                         "text/csv",
@@ -474,14 +831,24 @@ def render_prediction_page():
     
     # ==================== TAB 3: INDIVIDUAL PREDICTION ====================
     with tab3:
-        st.markdown("### Individual Student Assessment")
-        st.info("Enter student data to get an instant risk prediction.")
+        st.markdown('<p class="section-header">Individual Student Assessment</p>', unsafe_allow_html=True)
+        
+        st.markdown("""
+            <div class="insight-box">
+                <p>Enter student metrics below to get an instant risk prediction. 
+                The model will assess dropout probability based on academic and engagement indicators.</p>
+            </div>
+        """, unsafe_allow_html=True)
         
         if not predictor.is_trained:
-            st.warning("Please train a model first in the 'Train Model' tab.")
+            st.markdown("""
+                <div class="warning-box">
+                    <p>Please train a model first in the <strong>Train Model</strong> tab before running predictions.</p>
+                </div>
+            """, unsafe_allow_html=True)
         else:
             with st.form("individual_prediction"):
-                st.markdown("#### Student Information")
+                st.markdown("**Student Information**")
                 
                 col1, col2, col3 = st.columns(3)
                 
@@ -500,7 +867,7 @@ def render_prediction_page():
                     late_submissions = st.number_input("Late Submissions", min_value=0, max_value=20, value=2)
                     participation_score = st.number_input("Participation Score", min_value=0.0, max_value=10.0, value=6.0)
                 
-                submitted = st.form_submit_button("🔮 Predict Risk", use_container_width=True, type="primary")
+                submitted = st.form_submit_button("Predict Risk", use_container_width=True, type="primary")
                 
                 if submitted:
                     student_data = {
@@ -529,26 +896,59 @@ def render_prediction_page():
                     
                     result = predictor.predict_single(student_data)
                     
-                    st.markdown("---")
-                    st.markdown("### Prediction Result")
-                    
-                    risk_color = {
-                        'Low': '🟢',
-                        'Medium': '🟡', 
-                        'High': '🔴'
-                    }
+                    st.divider()
+                    st.markdown('<p class="section-header">Prediction Result</p>', unsafe_allow_html=True)
                     
                     r1, r2, r3 = st.columns(3)
-                    r1.metric("Risk Category", f"{risk_color.get(result['risk_category'], '')} {result['risk_category']}")
+                    r1.metric("Risk Category", result['risk_category'])
                     r2.metric("Risk Score", f"{result['risk_score']:.1f}%")
                     r3.metric("Dropout Probability", f"{result['dropout_probability']*100:.1f}%")
                     
+                    # Show interpretation based on risk level
                     if result['risk_category'] == 'High':
-                        st.error("⚠️ This student is at HIGH risk of dropout. Immediate intervention recommended.")
+                        st.markdown(f"""
+                            <div class="warning-box">
+                                <p><strong>HIGH RISK Assessment</strong></p>
+                                <p>This student shows significant indicators of dropout risk with a 
+                                {result['dropout_probability']*100:.1f}% probability. Immediate intervention is recommended.</p>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        st.markdown("""
+                        **Recommended Actions:**
+                        - Schedule immediate one-on-one counseling session
+                        - Review academic support resources availability  
+                        - Assess financial situation and scholarship eligibility
+                        - Connect with peer mentoring program
+                        """)
                     elif result['risk_category'] == 'Medium':
-                        st.warning("⚡ This student shows MEDIUM risk. Monitor closely and consider support.")
+                        st.markdown(f"""
+                            <div class="insight-box">
+                                <p><strong>MEDIUM RISK Assessment</strong></p>
+                                <p>This student shows some concerning indicators with a 
+                                {result['dropout_probability']*100:.1f}% dropout probability. Close monitoring advised.</p>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        st.markdown("""
+                        **Recommended Actions:**
+                        - Schedule follow-up meeting within 2 weeks
+                        - Review course load and academic progress
+                        - Offer study skills workshop enrollment
+                        - Monitor attendance patterns
+                        """)
                     else:
-                        st.success("✅ This student is at LOW risk. Continue regular monitoring.")
+                        st.markdown(f"""
+                            <div class="success-box">
+                                <p><strong>LOW RISK Assessment</strong></p>
+                                <p>This student shows healthy academic indicators with only a 
+                                {result['dropout_probability']*100:.1f}% dropout probability. Continue standard monitoring.</p>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        st.markdown("""
+                        **Recommended Actions:**
+                        - Maintain regular check-ins
+                        - Encourage continued engagement
+                        - Consider for peer tutoring opportunities
+                        """)
 
 def render_login_page():
     """Wrapper that calls the new auth page."""
