@@ -286,12 +286,9 @@ def render_professional_dashboard():
             display_cols = ['student_id', 'current_gpa', 'attendance_rate', 'failed_courses', 'risk_score']
             available_cols = [c for c in display_cols if c in high_risk_students.columns]
             
-            # Style the dataframe
+            # Display the dataframe
             st.dataframe(
-                high_risk_students[available_cols].style.background_gradient(
-                    subset=['risk_score'] if 'risk_score' in available_cols else [],
-                    cmap='Reds'
-                ),
+                high_risk_students[available_cols],
                 use_container_width=True,
                 hide_index=True
             )
